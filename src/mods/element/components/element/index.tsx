@@ -13,8 +13,14 @@ export const ElementComponent = (props: Props) => {
             case ElementTypeEnum.ENEMY:
                 return "#"
 
-            case ElementTypeEnum.SHOT:
+            case ElementTypeEnum.ENEMY_KILLED:
+                return "*"
+
+            case ElementTypeEnum.ENEMY_SHOT:
                 return "|"
+
+            case ElementTypeEnum.USER_SHOT:
+                return "&"
 
             case ElementTypeEnum.USER:
                 return "^"
