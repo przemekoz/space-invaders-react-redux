@@ -1,4 +1,4 @@
-import { PlateInterface } from "../types";
+import { PlateInterface, EnemiesMoveDirection } from "../types";
 import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum } from "../../element/types";
 
@@ -11,7 +11,7 @@ import { ElementInterface, ElementTypeEnum } from "../../element/types";
 /*
  *
  * 1 - przesuwaj w prawo/lewo wszytkie istniejace ENEMY-ies
- *
+ *  [OK]
  */
 
 /*
@@ -44,58 +44,48 @@ import { ElementInterface, ElementTypeEnum } from "../../element/types";
  *
  */
 
+const emptyRow = [
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+    new ElementClass(),
+]
+
 export class PlateClass implements PlateInterface {
     listOfElements: ElementInterface[][];
 
     constructor() {
         this.listOfElements = [
-            [
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass({ type: ElementTypeEnum.ENEMY }),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass({ type: ElementTypeEnum.ENEMY }),
-                new ElementClass(),
-                new ElementClass(),
-            ],
-            [
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-            ],
-            [
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass({ type: ElementTypeEnum.USER }),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-                new ElementClass(),
-            ]
+            [...emptyRow],
+            [...emptyRow],
+            [...emptyRow],
+            [...emptyRow],
+            [...emptyRow],
         ];
-
-        setTimeout(this.moveEnemies.bind(this), 2000)
+        this.listOfElements[0][2] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[0][4] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[0][6] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[1][1] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[1][3] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[1][5] = new ElementClass({ type: ElementTypeEnum.ENEMY });
+        this.listOfElements[4][4] = new ElementClass({ type: ElementTypeEnum.USER });
     }
 
-    moveEnemies(direction = "left") {
+    moveEnemies(direction: EnemiesMoveDirection) {
         const newListOfElements: ElementInterface[][] = [];
         this.listOfElements.forEach(
             (row: ElementInterface[], rowIndex: number) => {
-                newListOfElements.push([...row]);
+                const isEnemy = row.find(element => element.type === ElementTypeEnum.ENEMY);
+                newListOfElements.push(isEnemy ? [...emptyRow] : [...row]);
                 row.forEach(
                     (element: ElementInterface, columnIndex: number) => {
                         if (element.type === ElementTypeEnum.ENEMY) {
-                            const index = direction === "left" ? columnIndex - 1 : columnIndex + 1;
+                            const index = direction === EnemiesMoveDirection.LEFT ? columnIndex - 1 : columnIndex + 1;
                             newListOfElements[rowIndex][index] = element;
                             return new ElementClass();
                         } else {
