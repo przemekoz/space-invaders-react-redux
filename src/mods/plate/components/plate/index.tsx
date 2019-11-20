@@ -1,5 +1,5 @@
 import React from "react";
-import { PlateInterface, EnemiesMoveDirection } from "../../types";
+import { PlateInterface, EnemiesMoveDirection, UserMoveDirection } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
 import { ElementInterface } from "../../../element/types";
 
@@ -20,13 +20,23 @@ export class PlateComponent extends React.Component<Props, State> {
         }
     }
 
-    moveLeft() {
+    moveEnemiesLeft() {
         this.props.plate.moveEnemies(EnemiesMoveDirection.LEFT);
         this.setState({ listOfElements: this.props.plate.listOfElements })
     }
 
-    moveRight() {
+    moveEnemiesRight() {
         this.props.plate.moveEnemies(EnemiesMoveDirection.RIGHT);
+        this.setState({ listOfElements: this.props.plate.listOfElements })
+    }
+
+    moveUserLeft() {
+        this.props.plate.moveUser(UserMoveDirection.LEFT);
+        this.setState({ listOfElements: this.props.plate.listOfElements })
+    }
+
+    moveUserRight() {
+        this.props.plate.moveUser(UserMoveDirection.RIGHT);
         this.setState({ listOfElements: this.props.plate.listOfElements })
     }
 
@@ -44,8 +54,11 @@ export class PlateComponent extends React.Component<Props, State> {
                         )}
                     </tbody>
                 </table>
-                <button onClick={this.moveLeft.bind(this)}>move left</button>
-                <button onClick={this.moveRight.bind(this)}>move right</button>
+                <button onClick={this.moveEnemiesLeft.bind(this)}>move enemies: left</button>
+                <button onClick={this.moveEnemiesRight.bind(this)}>move enemies: right</button>
+
+                <button onClick={this.moveUserLeft.bind(this)}>move user: left</button>
+                <button onClick={this.moveUserRight.bind(this)}>move user: right</button>
             </>
         )
     }

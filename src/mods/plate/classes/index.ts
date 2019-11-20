@@ -1,4 +1,4 @@
-import { PlateInterface, EnemiesMoveDirection } from "../types";
+import { PlateInterface, EnemiesMoveDirection, UserMoveDirection } from "../types";
 import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum } from "../../element/types";
 
@@ -35,7 +35,7 @@ import { ElementInterface, ElementTypeEnum } from "../../element/types";
 /*
  *
  * 5 - przesuwaj w prawo/lewo USER-a
- *
+ *  [OK]
  */
 
 /*
@@ -43,6 +43,30 @@ import { ElementInterface, ElementTypeEnum } from "../../element/types";
  * 6 - przesuwaj w gore strzal USER
  *
  */
+
+/*
+ *
+ * 7 - przechwyc wcisniejce strzalek: USER prawo/lewo
+ *
+ */
+
+/*
+ * ZDARZENIE
+ * 8 - dodaj obsluge kolejnych etapow (frame) w czasie - obsluga zdarzen
+ *
+ */
+
+/*
+ * ZDARZENIE
+ * 9 - losowy ENEMY strzela
+ * 
+ */
+
+/*
+* ZDARZENIE
+* 9 - USER strzela
+* 
+*/
 
 const emptyRow = [
     new ElementClass(),
@@ -87,9 +111,25 @@ export class PlateClass implements PlateInterface {
                         if (element.type === ElementTypeEnum.ENEMY) {
                             const index = direction === EnemiesMoveDirection.LEFT ? columnIndex - 1 : columnIndex + 1;
                             newListOfElements[rowIndex][index] = element;
-                            return new ElementClass();
-                        } else {
-                            return element;
+                        }
+                    }
+                );
+            }
+        );
+        this.listOfElements = newListOfElements;
+    }
+
+    moveUser(direction: UserMoveDirection) {
+        const newListOfElements: ElementInterface[][] = [];
+        this.listOfElements.forEach(
+            (row: ElementInterface[], rowIndex: number) => {
+                const isUser = row.find(element => element.type === ElementTypeEnum.USER);
+                newListOfElements.push(isUser ? [...emptyRow] : [...row]);
+                row.forEach(
+                    (element: ElementInterface, columnIndex: number) => {
+                        if (element.type === ElementTypeEnum.USER) {
+                            const index = direction === UserMoveDirection.LEFT ? columnIndex - 1 : columnIndex + 1;
+                            newListOfElements[rowIndex][index] = element;
                         }
                     }
                 );
