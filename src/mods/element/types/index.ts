@@ -3,6 +3,7 @@ export enum ElementTypeEnum {
     SHOT_ENEMY = "SHOT_ENEMY",
     SHOT_PLAYER = "SHOT_PLAYER",
     PLAYER = "PLAYER",
+    KA_BOOM = "KA_BOOM",
 }
 
 export interface ElementPos {

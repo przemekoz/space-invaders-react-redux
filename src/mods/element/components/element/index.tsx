@@ -22,6 +22,9 @@ export const ElementComponent = (props: Props) => {
             case ElementTypeEnum.PLAYER:
                 return "^";
 
+            case ElementTypeEnum.KA_BOOM:
+                return "*";
+
             default:
                 return ".";
         }

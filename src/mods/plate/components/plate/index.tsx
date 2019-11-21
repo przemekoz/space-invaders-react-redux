@@ -1,5 +1,5 @@
 import React from "react";
-import { PlateInterface, PlayerMoveDirection, PlateClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
+import { PlateInterface, PlayerMoveDirection, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 interface State {
     stats: string;
-    listOfElements: PlateClassRenderInterface;
+    listOfElements: GameClassRenderInterface;
 }
 
 export class PlateComponent extends React.Component<Props, State> {
@@ -34,13 +34,20 @@ export class PlateComponent extends React.Component<Props, State> {
         this.refreshStats();
     }
 
-    findCollision() {
-        //
+    findCollisions() {
+        this.props.plate.findCollisions();
         this.refreshStats();
     }
 
     enemyShoot() {
+        this.props.plate.enemyShoot();
         this.refreshStats();
+    }
+
+    tick() {
+        this.calculateNextPos();
+        this.findCollisions();
+        this.renderPlate();
     }
 
     playerShoot() {
@@ -97,10 +104,12 @@ export class PlateComponent extends React.Component<Props, State> {
                                 <button onClick={this.enemyShoot.bind(this)}>shoot!</button>
                             </div>
                             <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
+
                                 actions<br />
-                                <button onClick={this.calculateNextPos.bind(this)}>calculate next pos</button>
-                                <button onClick={this.findCollision.bind(this)}>check collisions</button>
-                                <button onClick={this.renderPlate.bind(this)}>render</button>
+                                <button onClick={this.tick.bind(this)}>tick ! (1,2,3)</button><br />
+                                <button onClick={this.calculateNextPos.bind(this)}>1. calculate next pos</button><br />
+                                <button onClick={this.findCollisions.bind(this)}>2. check collisions</button><br />
+                                <button onClick={this.renderPlate.bind(this)}>3. render</button><br />
                             </div>
                         </div>
 
