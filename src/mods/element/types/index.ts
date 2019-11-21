@@ -1,11 +1,24 @@
 export enum ElementTypeEnum {
-    EMPTY = "EMPTY",
     ENEMY = "ENEMY",
-    ENEMY_KILLED = "ENEMY_KILLED",
-    ENEMY_SHOT = "ENEMY_SHOT",
-    USER_SHOT = "USER_SHOT",
-    USER = "USER",
+    SHOT_ENEMY = "SHOT_ENEMY",
+    SHOT_PLAYER = "SHOT_PLAYER",
+    PLAYER = "PLAYER",
 }
+
+export interface ElementPos {
+    x: number;
+    y: number;
+}
+
 export interface ElementInterface {
-    type: ElementTypeEnum
+    getPos(): ElementPos;
+    getType(): ElementTypeEnum;
+    isPos(x: number, y: number): boolean;
+    setPosX(x: number): void;
+    setPosY(y: number): void;
+}
+
+export interface ElementClassParams {
+    type: ElementTypeEnum;
+    pos: ElementPos;
 }

@@ -1,14 +1,14 @@
 import React from "react";
-import { PlateInterface, EnemiesMoveDirection, UserMoveDirection } from "../../types";
+import { PlateInterface, PlayerMoveDirection, PlateClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
-import { ElementInterface } from "../../../element/types";
 
 interface Props {
-    plate: PlateInterface
+    plate: PlateInterface;
 }
 
 interface State {
-    listOfElements: ElementInterface[][];
+    stats: string;
+    listOfElements: PlateClassRenderInterface;
 }
 
 export class PlateComponent extends React.Component<Props, State> {
@@ -16,49 +16,103 @@ export class PlateComponent extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            listOfElements: props.plate.listOfElements
-        }
+            stats: "",
+            listOfElements: [],
+        };
     }
 
-    moveEnemiesLeft() {
-        this.props.plate.moveEnemies(EnemiesMoveDirection.LEFT);
-        this.setState({ listOfElements: this.props.plate.listOfElements })
+    componentDidMount() {
+        this.renderPlate();
     }
 
-    moveEnemiesRight() {
-        this.props.plate.moveEnemies(EnemiesMoveDirection.RIGHT);
-        this.setState({ listOfElements: this.props.plate.listOfElements })
+    private refreshStats() {
+        this.setState({ stats: this.props.plate.getStats() })
     }
 
-    moveUserLeft() {
-        this.props.plate.moveUser(UserMoveDirection.LEFT);
-        this.setState({ listOfElements: this.props.plate.listOfElements })
+    renderPlate() {
+        this.setState({ listOfElements: this.props.plate.render() })
+        this.refreshStats();
     }
 
-    moveUserRight() {
-        this.props.plate.moveUser(UserMoveDirection.RIGHT);
-        this.setState({ listOfElements: this.props.plate.listOfElements })
+    findCollision() {
+        //
+        this.refreshStats();
     }
 
-    render() {
-        const { listOfElements } = this.state;
+    enemyShoot() {
+        this.refreshStats();
+    }
+
+    playerShoot() {
+        this.props.plate.playerShoot();
+        this.refreshStats();
+    }
+
+    calculateNextPos() {
+        this.props.plate.calculateNextPos();
+        this.refreshStats();
+    }
+
+    movePlayerLeft() {
+        this.props.plate.movePlayer(PlayerMoveDirection.LEFT);
+        this.refreshStats();
+    }
+
+    movePlayerRight() {
+        this.props.plate.movePlayer(PlayerMoveDirection.RIGHT);
+        this.refreshStats();
+    }
+
+    public render() {
+        const { listOfElements, stats } = this.state;
         return (
             <>
                 I'm the Plate
-                <table>
-                    <tbody>
-                        {listOfElements.map((row: ElementInterface[], index: number) =>
-                            <tr key={index}>
-                                {row.map((element: ElementInterface, index: number) => <td key={index} ><ElementComponent element={element} /></td>)}
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                <button onClick={this.moveEnemiesLeft.bind(this)}>move enemies: left</button>
-                <button onClick={this.moveEnemiesRight.bind(this)}>move enemies: right</button>
+                <div>
+                    <div style={{ float: 'left', width: '50%' }}>
+                        <table>
+                            <tbody>
+                                {listOfElements.map((row: ElemenInterfaceOrNull[], index: number) =>
+                                    <tr key={index}>
+                                        {row.map((element: ElemenInterfaceOrNull, index: number) => (
+                                            <td key={index} >
+                                                {element ? <ElementComponent element={element} /> : <div style={{ width: "10px", height: "10px" }}>.</div>}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <br />
+                        <br />
+                        <div style={{ width: '100%' }}>
+                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
+                                player<br />
+                                <button onClick={this.movePlayerLeft.bind(this)}>left</button>
+                                <button onClick={this.movePlayerRight.bind(this)}>right</button>
+                                <button onClick={this.playerShoot.bind(this)}>shoot!</button>
+                            </div>
+                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
+                                enemy<br />
+                                <button onClick={this.enemyShoot.bind(this)}>shoot!</button>
+                            </div>
+                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
+                                actions<br />
+                                <button onClick={this.calculateNextPos.bind(this)}>calculate next pos</button>
+                                <button onClick={this.findCollision.bind(this)}>check collisions</button>
+                                <button onClick={this.renderPlate.bind(this)}>render</button>
+                            </div>
+                        </div>
 
-                <button onClick={this.moveUserLeft.bind(this)}>move user: left</button>
-                <button onClick={this.moveUserRight.bind(this)}>move user: right</button>
+                    </div>
+                    <div style={{ float: 'left', width: '40%', textAlign: 'left', paddingLeft: '1em' }}>
+                        <small>
+                            <pre>
+                                {stats}
+                            </pre>
+                        </small>
+                    </div>
+                </div>
             </>
         )
     }

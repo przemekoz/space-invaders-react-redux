@@ -1,11 +1,14 @@
-import { PlateInterface, EnemiesMoveDirection, UserMoveDirection } from "../types";
+import { PlateInterface, EnemiesMoveDirection, PlayerMoveDirection, PlateClassRenderInterface, ElemenInterfaceOrNull } from "../types";
 import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum } from "../../element/types";
+import { ElementEnemyClass } from "../../elementEnemy/classes";
+import { ElementEnemySubtype } from "../../elementEnemy/types";
 
 /*
  *
- *   0,0 - 0,1 - 0,2 - 0,3 - 0,4
- *
+ *   0,0  1,0  1,  0,3  0,4
+ *   0,1  1,1  1,2  1,3  1,4
+ *   ...
  */
 
 /*
@@ -68,74 +71,130 @@ import { ElementInterface, ElementTypeEnum } from "../../element/types";
 * 
 */
 
-const emptyRow = [
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-    new ElementClass(),
-]
-
 export class PlateClass implements PlateInterface {
-    listOfElements: ElementInterface[][];
+    private maxX = 11;
+    private maxY = 10;
+    private listOfElements: ElementInterface[];
+    private playerPosOffsset = 0;
+    private enemiesMoveOffsset = 0;
+    private enemiesMoveState = [
+        EnemiesMoveDirection.RIGHT,
+        EnemiesMoveDirection.LEFT,
+        EnemiesMoveDirection.RIGHT,
+        EnemiesMoveDirection.LEFT,
+        EnemiesMoveDirection.DOWN,
+    ]
+
 
     constructor() {
-        this.listOfElements = [
-            [...emptyRow],
-            [...emptyRow],
-            [...emptyRow],
-            [...emptyRow],
-            [...emptyRow],
-        ];
-        this.listOfElements[0][2] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[0][4] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[0][6] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[1][1] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[1][3] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[1][5] = new ElementClass({ type: ElementTypeEnum.ENEMY });
-        this.listOfElements[4][4] = new ElementClass({ type: ElementTypeEnum.USER });
+        this.listOfElements = this.initLisOfElements();
     }
 
-    moveEnemies(direction: EnemiesMoveDirection) {
-        const newListOfElements: ElementInterface[][] = [];
-        this.listOfElements.forEach(
-            (row: ElementInterface[], rowIndex: number) => {
-                const isEnemy = row.find(element => element.type === ElementTypeEnum.ENEMY);
-                newListOfElements.push(isEnemy ? [...emptyRow] : [...row]);
-                row.forEach(
-                    (element: ElementInterface, columnIndex: number) => {
-                        if (element.type === ElementTypeEnum.ENEMY) {
-                            const index = direction === EnemiesMoveDirection.LEFT ? columnIndex - 1 : columnIndex + 1;
-                            newListOfElements[rowIndex][index] = element;
-                        }
-                    }
-                );
+    private initLisOfElements(): ElementInterface[] {
+        const listOfElements: ElementInterface[] = [];
+        for (let y = 0; y < 3; y++) {
+            let add = y === 2 ? 1 : y + 1;
+            for (let x = 0; x < 4; x++) {
+                listOfElements.push(new ElementEnemyClass({
+                    subtype: ElementEnemySubtype.NORMAL,
+                    pos: { x: x + add, y: y + 1 },
+                }));
+                add++;
             }
-        );
-        this.listOfElements = newListOfElements;
+        }
+        listOfElements.push(new ElementClass({
+            type: ElementTypeEnum.PLAYER,
+            pos: { x: 5, y: 9 },
+        }));
+        return listOfElements;
     }
 
-    moveUser(direction: UserMoveDirection) {
-        const newListOfElements: ElementInterface[][] = [];
-        this.listOfElements.forEach(
-            (row: ElementInterface[], rowIndex: number) => {
-                const isUser = row.find(element => element.type === ElementTypeEnum.USER);
-                newListOfElements.push(isUser ? [...emptyRow] : [...row]);
-                row.forEach(
-                    (element: ElementInterface, columnIndex: number) => {
-                        if (element.type === ElementTypeEnum.USER) {
-                            const index = direction === UserMoveDirection.LEFT ? columnIndex - 1 : columnIndex + 1;
-                            newListOfElements[rowIndex][index] = element;
-                        }
-                    }
-                );
+    public render(): PlateClassRenderInterface {
+        const toRender = [];
+        for (let y = 0; y < this.maxY; y++) {
+            const row: ElemenInterfaceOrNull[] = [];
+            for (let x = 0; x < this.maxX; x++) {
+                row.push(this.findElement(x, y));
             }
-        );
-        this.listOfElements = newListOfElements;
+            toRender.push(row);
+        }
+        return toRender;
+    }
+
+    public calculateNextPos() {
+        this.listOfElements.forEach(element => {
+            switch (element.getType()) {
+
+                case ElementTypeEnum.PLAYER:
+                    element.setPosX(element.getPos().x + this.playerPosOffsset);
+                    break;
+
+                case ElementTypeEnum.SHOT_ENEMY:
+                    element.setPosY(element.getPos().y + 1);
+                    break;
+
+                case ElementTypeEnum.SHOT_PLAYER:
+                    element.setPosY(element.getPos().y - 1);
+                    break;
+
+                case ElementTypeEnum.ENEMY:
+                    const length = this.enemiesMoveState.length;
+                    if (this.enemiesMoveOffsset === length) {
+                        this.enemiesMoveOffsset = 0;
+                    }
+                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.LEFT) {
+                        element.setPosX(element.getPos().x - 1);
+                    }
+                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.RIGHT) {
+                        element.setPosX(element.getPos().x + 1);
+                    }
+                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.DOWN) {
+                        element.setPosY(element.getPos().y + 1);
+                    }
+                    break;
+            }
+        });
+        this.playerPosOffsset = 0;
+        this.enemiesMoveOffsset++;
+    }
+
+    public findCollisions() {
+        for (let y = 0; y < this.maxY; y++) {
+            for (let x = 0; x < this.maxX; x++) {
+
+            }
+        }
+    }
+
+    public playerShoot() {
+        const player = this.listOfElements.find(element => element.getType() === ElementTypeEnum.PLAYER);
+        if (player) {
+            this.listOfElements.push(new ElementClass({
+                type: ElementTypeEnum.SHOT_PLAYER,
+                pos: { x: player.getPos().x, y: player.getPos().y },
+            }));
+        }
+    }
+
+    private findElement(x: number, y: number): ElemenInterfaceOrNull {
+        const found = this.listOfElements.find(element => element.isPos(x, y));
+        return found || null;
+    }
+
+    getStats(): string {
+        return `
+            playerPosOffsset: ${this.playerPosOffsset}
+            elements: 
+            ${this.listOfElements.map(
+            element => {
+                return `
+                    type: ${element.getType()}
+                    pos: ${JSON.stringify(element.getPos())}`
+            }).join("\r\n")}`;
+    }
+
+    public movePlayer(direction: PlayerMoveDirection) {
+        this.playerPosOffsset = direction === PlayerMoveDirection.LEFT ? this.playerPosOffsset - 1 : this.playerPosOffsset + 1;
     }
 
 }

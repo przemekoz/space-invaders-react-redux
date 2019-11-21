@@ -2,41 +2,35 @@ import React from "react";
 import { ElementInterface, ElementTypeEnum } from "../../types";
 
 export interface Props {
-    element: ElementInterface
+    element: ElementInterface;
 }
 
 export const ElementComponent = (props: Props) => {
     const { element } = props;
 
     const renderType = () => {
-        switch (element.type) {
+        switch (element.getType()) {
             case ElementTypeEnum.ENEMY:
-                return "#"
+                return "#";
 
-            case ElementTypeEnum.ENEMY_KILLED:
-                return "*"
+            case ElementTypeEnum.SHOT_ENEMY:
+                return "!";
 
-            case ElementTypeEnum.ENEMY_SHOT:
-                return "|"
+            case ElementTypeEnum.SHOT_PLAYER:
+                return "|";
 
-            case ElementTypeEnum.USER_SHOT:
-                return "&"
-
-            case ElementTypeEnum.USER:
-                return "^"
+            case ElementTypeEnum.PLAYER:
+                return "^";
 
             default:
                 return ".";
         }
-    }
-
+    };
 
     return (
-        <div style={{
-            width: "10px", height: "10px"
-        }}>
+        <div style={{ width: "10px", height: "10px" }}>
             {renderType()}
         </div >
 
-    )
+    );
 };
