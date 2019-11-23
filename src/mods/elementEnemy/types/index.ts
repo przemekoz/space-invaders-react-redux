@@ -1,4 +1,4 @@
-import { ElementInterface, ElementPos } from "../../element/types";
+import { ElementInterface } from "../../element/types";
 
 export enum ElementEnemySubtype {
     NORMAL,
@@ -6,9 +6,4 @@ export enum ElementEnemySubtype {
 
 export interface ElementEnemyInterface extends ElementInterface {
 
-}
-
-export interface ElementEnemyClassParams {
-    subtype: ElementEnemySubtype;
-    pos: ElementPos;
 }

@@ -1,8 +1,7 @@
-import { EnemiesMoveDirection, GameClassRenderInterface, PlateInterface, ElemenInterfaceOrNull, PlayerMoveDirection } from "../types";
+import { EnemiesMoveDirection, GameClassRenderInterface, GameInterface, ElemenInterfaceOrNull, PlayerMoveDirection } from "../types";
 import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum } from "../../element/types";
-import { ElementEnemyClass } from "../../elementEnemy/classes";
-import { ElementEnemySubtype } from "../../elementEnemy/types";
+import { LevelClassInterface } from "../../level/types";
 
 /*
  *
@@ -17,25 +16,25 @@ import { ElementEnemySubtype } from "../../elementEnemy/types";
  *
  */
 
+interface Params {
+    levels: LevelClassInterface[]
+}
 
-export class GameClass implements PlateInterface {
+export class GameClass implements GameInterface {
     private maxX = 11;
     private maxY = 10;
+    private level = 0;
+    private tickCounter = -1;
     private playerLife = 3;
-    private listOfElements: ElementInterface[];
+    private listOfElements: ElementInterface[] = [];
     private playerPosOffsset = 0;
     private enemiesMoveOffsset = 0;
+    private enemiesMoveState: EnemiesMoveDirection[] = [];
 
-    private enemiesMoveState = [
-        EnemiesMoveDirection.RIGHT,
-        EnemiesMoveDirection.LEFT,
-        EnemiesMoveDirection.RIGHT,
-        EnemiesMoveDirection.LEFT,
-        EnemiesMoveDirection.DOWN,
-    ];
-
-    constructor() {
-        this.listOfElements = this.initLisOfElements();
+    constructor(params: Params) {
+        this.addEnemies(params.levels);
+        this.addEnemiesMoves(params.levels);
+        this.addPlayer();
     }
 
     public render(): GameClassRenderInterface {
@@ -51,6 +50,7 @@ export class GameClass implements PlateInterface {
     }
 
     public calculateNextPos() {
+        this.tickCounter++;
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
@@ -62,39 +62,41 @@ export class GameClass implements PlateInterface {
                 elementsToRemove.push(index);
             }
 
-            switch (element.getType()) {
+            if (this.tickCounter % element.getSpeed() === 0) {
+                switch (element.getType()) {
 
-                case ElementTypeEnum.KA_BOOM:
-                    elementsToRemove.push(index);
-                    break;
+                    case ElementTypeEnum.KA_BOOM:
+                        elementsToRemove.push(index);
+                        break;
 
-                case ElementTypeEnum.PLAYER:
-                    element.setPosX(element.getPos().x + this.playerPosOffsset);
-                    break;
+                    case ElementTypeEnum.PLAYER:
+                        element.setPosX(element.getPos().x + this.playerPosOffsset);
+                        break;
 
-                case ElementTypeEnum.SHOT_ENEMY:
-                    element.setPosY(element.getPos().y + 1);
-                    break;
-
-                case ElementTypeEnum.SHOT_PLAYER:
-                    element.setPosY(element.getPos().y - 1);
-                    break;
-
-                case ElementTypeEnum.ENEMY:
-                    const length = this.enemiesMoveState.length;
-                    if (this.enemiesMoveOffsset === length) {
-                        this.enemiesMoveOffsset = 0;
-                    }
-                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.LEFT) {
-                        element.setPosX(element.getPos().x - 1);
-                    }
-                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.RIGHT) {
-                        element.setPosX(element.getPos().x + 1);
-                    }
-                    if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.DOWN) {
+                    case ElementTypeEnum.SHOT_ENEMY:
                         element.setPosY(element.getPos().y + 1);
-                    }
-                    break;
+                        break;
+
+                    case ElementTypeEnum.SHOT_PLAYER:
+                        element.setPosY(element.getPos().y - 1);
+                        break;
+
+                    case ElementTypeEnum.ENEMY:
+                        const length = this.enemiesMoveState.length;
+                        if (this.enemiesMoveOffsset === length) {
+                            this.enemiesMoveOffsset = 0;
+                        }
+                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.LEFT) {
+                            element.setPosX(element.getPos().x - 1);
+                        }
+                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.RIGHT) {
+                            element.setPosX(element.getPos().x + 1);
+                        }
+                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.DOWN) {
+                            element.setPosY(element.getPos().y + 1);
+                        }
+                        break;
+                }
             }
         });
         elementsToRemove.forEach(index => {
@@ -115,6 +117,7 @@ export class GameClass implements PlateInterface {
 
                     this.listOfElements.push(new ElementClass({
                         type: ElementTypeEnum.KA_BOOM,
+                        speed: 10,
                         pos: { x, y },
                     }));
 
@@ -140,12 +143,12 @@ export class GameClass implements PlateInterface {
             if (element.getType() === ElementTypeEnum.ENEMY) {
                 maxY = element.getPos().y > maxY ? element.getPos().y : maxY;
             }
-        }
-        );
+        });
         const bottomEnemies = this.listOfElements.filter(element => element.getType() === ElementTypeEnum.ENEMY && element.getPos().y === maxY);
         const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
         this.listOfElements.push(new ElementClass({
             type: ElementTypeEnum.SHOT_ENEMY,
+            speed: 10,
             pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y },
         }));
     }
@@ -155,7 +158,8 @@ export class GameClass implements PlateInterface {
         if (player) {
             this.listOfElements.push(new ElementClass({
                 type: ElementTypeEnum.SHOT_PLAYER,
-                pos: { x: player.getPos().x, y: player.getPos().y },
+                speed: 10,
+                pos: { x: player.getPos().x, y: player.getPos().y - 1 },
             }));
         }
     }
@@ -163,6 +167,7 @@ export class GameClass implements PlateInterface {
     public getStats(): string {
         return `
             life: ${this.playerLife}
+            level: ${this.level + 1}
             playerPosOffsset: ${this.playerPosOffsset}
             elements:
             ${this.listOfElements.map(
@@ -187,23 +192,22 @@ export class GameClass implements PlateInterface {
         return found || [];
     }
 
-    private initLisOfElements(): ElementInterface[] {
-        const listOfElements: ElementInterface[] = [];
-        for (let y = 0; y < 3; y++) {
-            let add = y === 2 ? 1 : y + 1;
-            for (let x = 0; x < 4; x++) {
-                listOfElements.push(new ElementEnemyClass({
-                    subtype: ElementEnemySubtype.NORMAL,
-                    pos: { x: x + add, y: y + 1 },
-                }));
-                add++;
-            }
-        }
-        listOfElements.push(new ElementClass({
-            type: ElementTypeEnum.PLAYER,
-            pos: { x: 5, y: 9 },
-        }));
-        return listOfElements;
+    private addEnemies(levels: LevelClassInterface[]) {
+        this.listOfElements = levels[this.level].getEnemies();
     }
 
+    private addEnemiesMoves(levels: LevelClassInterface[]) {
+        this.enemiesMoveState = levels[this.level].getEnemiesMove();
+    }
+
+    private addPlayer() {
+        if (this.playerLife > 0) {
+            this.listOfElements.push(new ElementClass({
+                speed: 1,
+                pos: { x: 5, y: 9 },
+                type: ElementTypeEnum.PLAYER,
+            }));
+            this.playerLife--;
+        }
+    }
 }

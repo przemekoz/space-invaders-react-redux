@@ -1,25 +1,18 @@
+import { Pos } from "../../shared/types";
+
 export enum ElementTypeEnum {
     ENEMY = "ENEMY",
-    SHOT_ENEMY = "SHOT_ENEMY",
-    SHOT_PLAYER = "SHOT_PLAYER",
     PLAYER = "PLAYER",
     KA_BOOM = "KA_BOOM",
-}
-
-export interface ElementPos {
-    x: number;
-    y: number;
+    SHOT_ENEMY = "SHOT_ENEMY",
+    SHOT_PLAYER = "SHOT_PLAYER",
 }
 
 export interface ElementInterface {
-    getPos(): ElementPos;
+    getPos(): Pos;
     getType(): ElementTypeEnum;
     isPos(x: number, y: number): boolean;
     setPosX(x: number): void;
     setPosY(y: number): void;
-}
-
-export interface ElementClassParams {
-    type: ElementTypeEnum;
-    pos: ElementPos;
+    getSpeed(): number;
 }

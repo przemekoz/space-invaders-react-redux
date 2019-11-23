@@ -1,9 +1,9 @@
 import React from "react";
-import { PlateInterface, PlayerMoveDirection, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
+import { GameInterface, PlayerMoveDirection, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
 
 interface Props {
-    plate: PlateInterface;
+    game: GameInterface;
 }
 
 interface State {
@@ -11,7 +11,9 @@ interface State {
     listOfElements: GameClassRenderInterface;
 }
 
-export class PlateComponent extends React.Component<Props, State> {
+const tickInterval = 50;
+
+export class GameComponent extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -22,60 +24,75 @@ export class PlateComponent extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        this.renderPlate();
+        this.renderGame();
+        setInterval(() => {
+            this.tick();
+        }, tickInterval)
     }
 
     private refreshStats() {
-        this.setState({ stats: this.props.plate.getStats() })
+        this.setState({ stats: this.props.game.getStats() })
     }
 
-    renderPlate() {
-        this.setState({ listOfElements: this.props.plate.render() })
+    public renderGame() {
+        this.setState({ listOfElements: this.props.game.render() })
         this.refreshStats();
     }
 
-    findCollisions() {
-        this.props.plate.findCollisions();
+    public findCollisions() {
+        this.props.game.findCollisions();
         this.refreshStats();
     }
 
-    enemyShoot() {
-        this.props.plate.enemyShoot();
+    public enemyShoot() {
+        this.props.game.enemyShoot();
         this.refreshStats();
     }
 
-    tick() {
+    public tick() {
         this.calculateNextPos();
         this.findCollisions();
-        this.renderPlate();
+        this.renderGame();
     }
 
-    playerShoot() {
-        this.props.plate.playerShoot();
+    public playerShoot() {
+        this.props.game.playerShoot();
         this.refreshStats();
     }
 
-    calculateNextPos() {
-        this.props.plate.calculateNextPos();
+    public calculateNextPos() {
+        this.props.game.calculateNextPos();
         this.refreshStats();
     }
 
-    movePlayerLeft() {
-        this.props.plate.movePlayer(PlayerMoveDirection.LEFT);
+    public movePlayerLeft() {
+        this.props.game.movePlayer(PlayerMoveDirection.LEFT);
         this.refreshStats();
     }
 
-    movePlayerRight() {
-        this.props.plate.movePlayer(PlayerMoveDirection.RIGHT);
+    public movePlayerRight() {
+        this.props.game.movePlayer(PlayerMoveDirection.RIGHT);
         this.refreshStats();
+    }
+
+    public handleKeyPress(event: React.KeyboardEvent<any>) {
+        if (event.key === 'ArrowLeft') {
+            this.movePlayerLeft();
+        }
+        else if (event.key === 'ArrowRight') {
+            this.movePlayerRight();
+        }
+        else if (event.key === 'Control') {
+            this.playerShoot();
+        }
     }
 
     public render() {
         const { listOfElements, stats } = this.state;
         return (
             <>
-                I'm the Plate
-                <div>
+                I'm the Game
+                <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)}>
                     <div style={{ float: 'left', width: '50%' }}>
                         <table>
                             <tbody>
@@ -109,7 +126,7 @@ export class PlateComponent extends React.Component<Props, State> {
                                 <button onClick={this.tick.bind(this)}>tick ! (1,2,3)</button><br />
                                 <button onClick={this.calculateNextPos.bind(this)}>1. calculate next pos</button><br />
                                 <button onClick={this.findCollisions.bind(this)}>2. check collisions</button><br />
-                                <button onClick={this.renderPlate.bind(this)}>3. render</button><br />
+                                <button onClick={this.renderGame.bind(this)}>3. render</button><br />
                             </div>
                         </div>
 
@@ -117,6 +134,7 @@ export class PlateComponent extends React.Component<Props, State> {
                     <div style={{ float: 'left', width: '40%', textAlign: 'left', paddingLeft: '1em' }}>
                         <small>
                             <pre>
+                                tickInterval: {tickInterval}ms
                                 {stats}
                             </pre>
                         </small>

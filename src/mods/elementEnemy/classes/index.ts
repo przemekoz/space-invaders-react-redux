@@ -1,13 +1,21 @@
 import { ElementClass } from "../../element/classes";
-import { ElementEnemyClassParams, ElementEnemyInterface, ElementEnemySubtype } from "../types";
-import { ElementTypeEnum } from "../../element/types";
+import { ElementEnemyInterface, ElementEnemySubtype } from "../types";
+import { ElementTypeEnum, ElementInterface } from "../../element/types";
+import { Pos } from "../../shared/types";
 
-export class ElementEnemyClass extends ElementClass implements ElementEnemyInterface {
+interface Params {
+    pos: Pos;
+    speed: number;
+    subtype: ElementEnemySubtype;
+}
+
+export class ElementEnemyClass extends ElementClass implements ElementInterface, ElementEnemyInterface {
     private subtype: ElementEnemySubtype;
 
-    constructor(params: ElementEnemyClassParams) {
+    constructor(params: Params) {
         super({
             pos: params.pos,
+            speed: params.speed,
             type: ElementTypeEnum.ENEMY,
         });
         this.subtype = params.subtype;
