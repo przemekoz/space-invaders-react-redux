@@ -11,9 +11,11 @@ interface State {
     listOfElements: GameClassRenderInterface;
 }
 
-const tickInterval = 50;
 
 export class GameComponent extends React.Component<Props, State> {
+
+    private tickInterval: any = null;
+    private tickIntervalTime = 50;
 
     constructor(props: Props) {
         super(props);
@@ -25,13 +27,9 @@ export class GameComponent extends React.Component<Props, State> {
 
     componentDidMount() {
         this.renderGame();
-        setInterval(() => {
+        this.tickInterval = setInterval(() => {
             this.tick();
-        }, tickInterval)
-    }
-
-    private refreshStats() {
-        this.setState({ stats: this.props.game.getStats() })
+        }, this.tickIntervalTime);
     }
 
     public renderGame() {
@@ -134,7 +132,7 @@ export class GameComponent extends React.Component<Props, State> {
                     <div style={{ float: 'left', width: '40%', textAlign: 'left', paddingLeft: '1em' }}>
                         <small>
                             <pre>
-                                tickInterval: {tickInterval}ms
+                                tickInterval: {this.tickIntervalTime}ms
                                 {stats}
                             </pre>
                         </small>
@@ -142,5 +140,13 @@ export class GameComponent extends React.Component<Props, State> {
                 </div>
             </>
         )
+    }
+
+    private stop() {
+        clearInterval(this.tickInterval);
+    }
+
+    private refreshStats() {
+        this.setState({ stats: this.props.game.getStats() })
     }
 }

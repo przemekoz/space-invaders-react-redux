@@ -24,17 +24,34 @@ export class GameClass implements GameInterface {
     private maxX = 11;
     private maxY = 10;
     private level = 0;
+    private levels: LevelClassInterface[] = [];
     private tickCounter = -1;
     private playerLife = 3;
     private listOfElements: ElementInterface[] = [];
     private playerPosOffsset = 0;
     private enemiesMoveOffsset = 0;
     private enemiesMoveState: EnemiesMoveDirection[] = [];
+    private enemyShootInterval: any = null;
+    private enemyShootIntervalTime = 0;
 
     constructor(params: Params) {
-        this.addEnemies(params.levels);
-        this.addEnemiesMoves(params.levels);
+        console.log('gameClass contructor')
+        this.levels = params.levels;
+        this.addLevel();
         this.addPlayer();
+    }
+
+    public stopEnemyShooting() {
+        clearInterval(this.enemyShootInterval);
+    }
+
+    private addLevel() {
+        this.addEnemies(this.levels);
+        this.addEnemiesMoves(this.levels);
+        this.stopEnemyShooting();
+        this.enemyShootInterval = setInterval(() => {
+            this.enemyShoot();
+        }, this.levels[this.level].getShootInterval());
     }
 
     public render(): GameClassRenderInterface {
@@ -50,7 +67,6 @@ export class GameClass implements GameInterface {
     }
 
     public calculateNextPos() {
-        this.tickCounter++;
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
@@ -62,6 +78,11 @@ export class GameClass implements GameInterface {
                 elementsToRemove.push(index);
             }
 
+
+            // console.log(element.getType(), element.getSpeed(), this.tickCounter % element.getSpeed() === 0, this.enemiesMoveState, this.enemiesMoveOffsset)
+            // console.log(this.enemiesMoveState, this.enemiesMoveOffsset)
+
+
             if (this.tickCounter % element.getSpeed() === 0) {
                 switch (element.getType()) {
 
@@ -70,7 +91,8 @@ export class GameClass implements GameInterface {
                         break;
 
                     case ElementTypeEnum.PLAYER:
-                        element.setPosX(element.getPos().x + this.playerPosOffsset);
+                        const potentialX = element.getPos().x + this.playerPosOffsset;
+                        element.setPosX(potentialX < 0 ? 0 : potentialX > this.maxX - 1 ? this.maxX - 1 : potentialX);
                         break;
 
                     case ElementTypeEnum.SHOT_ENEMY:
@@ -82,10 +104,6 @@ export class GameClass implements GameInterface {
                         break;
 
                     case ElementTypeEnum.ENEMY:
-                        const length = this.enemiesMoveState.length;
-                        if (this.enemiesMoveOffsset === length) {
-                            this.enemiesMoveOffsset = 0;
-                        }
                         if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.LEFT) {
                             element.setPosX(element.getPos().x - 1);
                         }
@@ -99,11 +117,29 @@ export class GameClass implements GameInterface {
                 }
             }
         });
+
         elementsToRemove.forEach(index => {
             this.listOfElements.splice(index, 1);
         });
-        this.playerPosOffsset = 0;
+
         this.enemiesMoveOffsset++;
+        const length = this.enemiesMoveState.length;
+        if (this.enemiesMoveOffsset >= length) {
+            this.enemiesMoveOffsset = 0;
+        }
+        this.playerPosOffsset = 0;
+
+        const isPlayer = this.listOfElements.find(element => element.getType() === ElementTypeEnum.PLAYER);
+        if (isPlayer === undefined && this.playerLife > 0) {
+            this.addPlayer();
+        }
+
+        const isEnemy = this.listOfElements.find(element => element.getType() === ElementTypeEnum.ENEMY);
+        if (isEnemy === undefined && this.playerLife > 0) {
+            this.level++;
+            this.addLevel();
+        }
+        this.tickCounter++;
     }
 
     public findCollisions() {
@@ -144,37 +180,45 @@ export class GameClass implements GameInterface {
                 maxY = element.getPos().y > maxY ? element.getPos().y : maxY;
             }
         });
-        const bottomEnemies = this.listOfElements.filter(element => element.getType() === ElementTypeEnum.ENEMY && element.getPos().y === maxY);
-        const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
-        this.listOfElements.push(new ElementClass({
-            type: ElementTypeEnum.SHOT_ENEMY,
-            speed: 10,
-            pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y },
-        }));
+        if (maxY > -1) {
+            const bottomEnemies = this.listOfElements.filter(element => element.getType() === ElementTypeEnum.ENEMY && element.getPos().y === maxY);
+            const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
+            this.listOfElements.push(new ElementClass({
+                type: ElementTypeEnum.SHOT_ENEMY,
+                speed: 3,
+                pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y + 1 },
+            }));
+        }
     }
 
     public playerShoot() {
         const player = this.listOfElements.find(element => element.getType() === ElementTypeEnum.PLAYER);
         if (player) {
-            this.listOfElements.push(new ElementClass({
-                type: ElementTypeEnum.SHOT_PLAYER,
-                speed: 10,
-                pos: { x: player.getPos().x, y: player.getPos().y - 1 },
-            }));
+            const x = player.getPos().x;
+            const y = player.getPos().y - 1;
+            const playerShoot = this.listOfElements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER && element.isPos(x, y));
+            if (playerShoot === undefined) {
+                this.listOfElements.push(new ElementClass({
+                    type: ElementTypeEnum.SHOT_PLAYER,
+                    speed: 3,
+                    pos: { x, y },
+                }));
+            }
         }
     }
 
     public getStats(): string {
         return `
-            life: ${this.playerLife}
-            level: ${this.level + 1}
-            playerPosOffsset: ${this.playerPosOffsset}
-            elements:
-            ${this.listOfElements.map(
+        life: ${this.playerLife}
+        level: ${this.level + 1}
+        tickCounter: ${this.tickCounter}
+        playerPosOffsset: ${this.playerPosOffsset}
+        elements:
+        ${this.listOfElements.map(
             element => {
                 return `
-                    type: ${element.getType()}
-                    pos: ${JSON.stringify(element.getPos())}`
+            type: ${element.getType()}
+            pos: ${JSON.stringify(element.getPos())}`
             }).join("\r\n")}`;
     }
 
@@ -207,7 +251,6 @@ export class GameClass implements GameInterface {
                 pos: { x: 5, y: 9 },
                 type: ElementTypeEnum.PLAYER,
             }));
-            this.playerLife--;
         }
     }
 }
