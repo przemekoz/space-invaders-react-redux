@@ -90,7 +90,7 @@ export class GameComponent extends React.Component<Props, State> {
         return (
             <>
                 I'm the Game
-                <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)}>
+                <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none' }}>
                     <div style={{ float: 'left', width: '50%' }}>
                         <table>
                             <tbody>
@@ -98,16 +98,14 @@ export class GameComponent extends React.Component<Props, State> {
                                     <tr key={index}>
                                         {row.map((element: ElemenInterfaceOrNull, index: number) => (
                                             <td key={index} >
-                                                {element ? <ElementComponent element={element} /> : <div style={{ width: "10px", height: "10px" }}>.</div>}
+                                                {element ? <ElementComponent element={element} /> : <div style={{ width: "48px", height: "48px" }}>&nbsp;</div>}
                                             </td>
                                         ))}
                                     </tr>
                                 )}
                             </tbody>
                         </table>
-                        <br />
-                        <br />
-                        <div style={{ width: '100%' }}>
+                        <div style={{ marginTop: '150px', width: '100%' }}>
                             <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
                                 player<br />
                                 <button onClick={this.movePlayerLeft.bind(this)}>left</button>

@@ -1,8 +1,15 @@
 import React from "react";
 import { ElementInterface, ElementTypeEnum } from "../../types";
+import { PlayerComponent } from "../../../elementPlayer/components";
+import { PlayerShootComponent } from "../../../elementPlayerShoot/components";
+import { EnemyShootComponent } from "../../../elementEnemyShoot/components";
+import { EnemyComponent } from "../../../elementEnemy/components";
+import { KaBoomComponent } from "../../../elementKaBoom/components";
+import { ElementEnemyInterface } from "../../../elementEnemy/types";
+import { ElementEnemyClass } from "../../../elementEnemy/classes";
 
 export interface Props {
-    element: ElementInterface;
+    element: ElementInterface | ElementEnemyInterface;
 }
 
 export const ElementComponent = (props: Props) => {
@@ -11,22 +18,26 @@ export const ElementComponent = (props: Props) => {
     const renderType = () => {
         switch (element.getType()) {
             case ElementTypeEnum.ENEMY:
-                return "#";
+                if (element instanceof ElementEnemyClass) {
+                    return <EnemyComponent element={element} />;
+                } else {
+                    return null;
+                }
 
             case ElementTypeEnum.SHOT_ENEMY:
-                return "!";
+                return <EnemyShootComponent />;
 
             case ElementTypeEnum.SHOT_PLAYER:
-                return "|";
+                return <PlayerShootComponent />;
 
             case ElementTypeEnum.PLAYER:
-                return "^";
+                return <PlayerComponent />;
 
             case ElementTypeEnum.KA_BOOM:
-                return "*";
+                return <KaBoomComponent />;
 
             default:
-                return ".";
+                return null;
         }
     };
 

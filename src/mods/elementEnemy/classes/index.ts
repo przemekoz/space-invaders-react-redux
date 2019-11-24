@@ -20,4 +20,8 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
         });
         this.subtype = params.subtype;
     }
+
+    public getSubType() {
+        return this.subtype;
+    }
 }

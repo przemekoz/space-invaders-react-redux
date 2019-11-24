@@ -7,9 +7,9 @@ import { GAME_LEVELS } from './mods/game/config/levels';
 const App: React.FC = () => {
     return (
         <div className="App">
-            <GameComponent game={new GameClass( {
+            <GameComponent game={new GameClass({
                 levels: GAME_LEVELS
-            } )} />
+            })} />
         </div>
     );
 }

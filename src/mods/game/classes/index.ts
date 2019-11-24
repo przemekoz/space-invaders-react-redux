@@ -153,7 +153,7 @@ export class GameClass implements GameInterface {
 
                     this.listOfElements.push(new ElementClass({
                         type: ElementTypeEnum.KA_BOOM,
-                        speed: 10,
+                        speed: 5,
                         pos: { x, y },
                     }));
 
