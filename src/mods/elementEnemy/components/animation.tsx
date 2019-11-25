@@ -21,7 +21,6 @@ export class EnemyAnimationComponent extends React.Component<Props, State> {
         this.state = {
             image: this.props.images[0]
         };
-        console.log(this.intervalTime)
     }
 
     componentDidMount() {
