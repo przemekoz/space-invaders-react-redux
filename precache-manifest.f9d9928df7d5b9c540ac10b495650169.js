@@ -1,19 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "108c73a7b39189acf47a92cabe3dc65a",
+    "revision": "f8537c05fd01f34f153abe0579c89632",
     "url": "/space-invaders-react-redux/index.html"
   },
   {
-    "revision": "87917c39ed473f52cf69",
+    "revision": "672fb2f17abcd484e788",
     "url": "/space-invaders-react-redux/static/css/main.1ac53e6e.chunk.css"
   },
   {
-    "revision": "d985df44b69d090582ee",
-    "url": "/space-invaders-react-redux/static/js/2.5d99c025.chunk.js"
+    "revision": "fb111bf0a72707b250d8",
+    "url": "/space-invaders-react-redux/static/js/2.8d47440e.chunk.js"
   },
   {
-    "revision": "87917c39ed473f52cf69",
-    "url": "/space-invaders-react-redux/static/js/main.8972a2a7.chunk.js"
+    "revision": "672fb2f17abcd484e788",
+    "url": "/space-invaders-react-redux/static/js/main.73fab7dd.chunk.js"
   },
   {
     "revision": "198d3e72d434172e1cbd",
