@@ -1,6 +1,7 @@
 import React from "react";
-import { GameInterface, PlayerMoveDirection, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
+import { GameInterface, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
+import { ElementMoveDirection } from "../../../element/types";
 
 interface Props {
     game: GameInterface;
@@ -64,12 +65,12 @@ export class GameComponent extends React.Component<Props, State> {
     }
 
     public movePlayerLeft() {
-        this.props.game.movePlayer(PlayerMoveDirection.LEFT);
+        this.props.game.movePlayer(ElementMoveDirection.LEFT);
         this.refreshStats();
     }
 
     public movePlayerRight() {
-        this.props.game.movePlayer(PlayerMoveDirection.RIGHT);
+        this.props.game.movePlayer(ElementMoveDirection.RIGHT);
         this.refreshStats();
     }
 

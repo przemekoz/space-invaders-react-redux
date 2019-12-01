@@ -1,10 +1,10 @@
-import { ElementInterface } from "../../element/types";
+import { ElementInterface, ElementMoveDirection } from "../../element/types";
 
 export type ElemenInterfaceOrNull = ElementInterface | null;
 export type GameClassRenderInterface = Array<Array<ElementInterface | null>>;
 
 export interface GameInterface {
-    movePlayer( direction: PlayerMoveDirection ): void;
+    movePlayer(direction: ElementMoveDirection): void;
     render(): GameClassRenderInterface;
     getStats(): string;
     calculateNextPos(): void;
@@ -13,13 +13,3 @@ export interface GameInterface {
     enemyShoot(): void;
 }
 
-export enum EnemiesMoveDirection {
-    LEFT,
-    RIGHT,
-    DOWN,
-}
-
-export enum PlayerMoveDirection {
-    LEFT,
-    RIGHT,
-}

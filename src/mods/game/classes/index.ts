@@ -1,7 +1,8 @@
-import { EnemiesMoveDirection, GameClassRenderInterface, GameInterface, ElemenInterfaceOrNull, PlayerMoveDirection } from "../types";
+import { GameClassRenderInterface, GameInterface, ElemenInterfaceOrNull } from "../types";
 import { ElementClass } from "../../element/classes";
-import { ElementInterface, ElementTypeEnum } from "../../element/types";
+import { ElementInterface, ElementTypeEnum, ElementMoveDirection } from "../../element/types";
 import { LevelClassInterface } from "../../level/types";
+import { ElementEnemyClass } from "../../elementEnemy/classes";
 
 /*
  *
@@ -10,11 +11,6 @@ import { LevelClassInterface } from "../../level/types";
  *   ...
  */
 
-/*
- *
- * 7 - przechwyc wcisniejce strzalek: USER prawo/lewo
- *
- */
 
 interface Params {
     levels: LevelClassInterface[]
@@ -29,13 +25,11 @@ export class GameClass implements GameInterface {
     private playerLife = 3;
     private listOfElements: ElementInterface[] = [];
     private playerPosOffsset = 0;
-    private enemiesMoveOffsset = 0;
-    private enemiesMoveState: EnemiesMoveDirection[] = [];
     private enemyShootInterval: any = null;
     private enemyShootIntervalTime = 0;
+    private endGame = false;
 
     constructor(params: Params) {
-        console.log('gameClass contructor')
         this.levels = params.levels;
         this.addLevel();
         this.addPlayer();
@@ -47,7 +41,6 @@ export class GameClass implements GameInterface {
 
     private addLevel() {
         this.addEnemies(this.levels);
-        this.addEnemiesMoves(this.levels);
         this.stopEnemyShooting();
         this.enemyShootInterval = setInterval(() => {
             this.enemyShoot();
@@ -70,20 +63,16 @@ export class GameClass implements GameInterface {
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
-            if (element.getPos().x > this.maxX || element.getPos().y > this.maxY) {
+            if (element.getPos().x > this.maxX + 10 || element.getPos().y > this.maxY + 10) {
                 elementsToRemove.push(index);
             }
 
-            if (element.getPos().x < 0 || element.getPos().y < 0) {
+            if (element.getPos().x < -10 || element.getPos().y < -10) {
                 elementsToRemove.push(index);
             }
-
-
-            // console.log(element.getType(), element.getSpeed(), this.tickCounter % element.getSpeed() === 0, this.enemiesMoveState, this.enemiesMoveOffsset)
-            // console.log(this.enemiesMoveState, this.enemiesMoveOffsset)
-
 
             if (this.tickCounter % element.getSpeed() === 0) {
+
                 switch (element.getType()) {
 
                     case ElementTypeEnum.KA_BOOM:
@@ -95,24 +84,8 @@ export class GameClass implements GameInterface {
                         element.setPosX(potentialX < 0 ? 0 : potentialX > this.maxX - 1 ? this.maxX - 1 : potentialX);
                         break;
 
-                    case ElementTypeEnum.SHOT_ENEMY:
-                        element.setPosY(element.getPos().y + 1);
-                        break;
-
-                    case ElementTypeEnum.SHOT_PLAYER:
-                        element.setPosY(element.getPos().y - 1);
-                        break;
-
-                    case ElementTypeEnum.ENEMY:
-                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.LEFT) {
-                            element.setPosX(element.getPos().x - 1);
-                        }
-                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.RIGHT) {
-                            element.setPosX(element.getPos().x + 1);
-                        }
-                        if (this.enemiesMoveState[this.enemiesMoveOffsset] === EnemiesMoveDirection.DOWN) {
-                            element.setPosY(element.getPos().y + 1);
-                        }
+                    default:
+                        element.setNextPosition();
                         break;
                 }
             }
@@ -122,13 +95,7 @@ export class GameClass implements GameInterface {
             this.listOfElements.splice(index, 1);
         });
 
-        this.enemiesMoveOffsset++;
-        const length = this.enemiesMoveState.length;
-        if (this.enemiesMoveOffsset >= length) {
-            this.enemiesMoveOffsset = 0;
-        }
         this.playerPosOffsset = 0;
-
         const isPlayer = this.listOfElements.find(element => element.getType() === ElementTypeEnum.PLAYER);
         if (isPlayer === undefined && this.playerLife > 0) {
             this.addPlayer();
@@ -137,7 +104,11 @@ export class GameClass implements GameInterface {
         const isEnemy = this.listOfElements.find(element => element.getType() === ElementTypeEnum.ENEMY);
         if (isEnemy === undefined && this.playerLife > 0) {
             this.level++;
-            this.addLevel();
+            if (this.levels.length === this.level) {
+                // TODO STOP THE GAME
+            } else {
+                this.addLevel();
+            }
         }
         this.tickCounter++;
     }
@@ -148,21 +119,41 @@ export class GameClass implements GameInterface {
                 const elements = this.findElements(x, y);
                 if (elements.length === 2) {
 
-                    // Remove both of them
-                    this.listOfElements = this.listOfElements.filter(element => element.isPos(x, y) === false);
-
-                    this.listOfElements.push(new ElementClass({
-                        type: ElementTypeEnum.KA_BOOM,
-                        speed: 5,
-                        pos: { x, y },
-                    }));
-
-                    const isShotEnemy = elements.find(element => element.getType() === ElementTypeEnum.SHOT_ENEMY);
                     const isEnemy = elements.find(element => element.getType() === ElementTypeEnum.ENEMY);
                     const isPlayer = elements.find(element => element.getType() === ElementTypeEnum.PLAYER);
+                    const isShotEnemy = elements.find(element => element.getType() === ElementTypeEnum.SHOT_ENEMY);
+                    const isPlayerShoot = elements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER);
 
-                    if ((isShotEnemy && isPlayer) || (isPlayer && isEnemy)) {
-                        this.playerLife--;
+                    let canRemoveElements = false;
+                    if (isEnemy && isPlayerShoot && isEnemy instanceof ElementEnemyClass) {
+                        const strength = isEnemy.getStrength();
+                        console.log(strength)
+                        if (strength === 1) {
+                            // TODO - add score
+                            canRemoveElements = true;
+                        }
+                        else if (strength > 1) {
+                            isEnemy.setStrength(strength - 1);
+                            // remove only shoot
+                            const isPlayerShootIndex = this.listOfElements.findIndex(element => element.isPos(x, y) && element.getType() === ElementTypeEnum.SHOT_PLAYER);
+                            this.listOfElements.splice(isPlayerShootIndex, 1);
+                        }
+                    } else {
+                        canRemoveElements = true;
+                        if ((isShotEnemy && isPlayer) || (isPlayer && isEnemy)) {
+                            this.playerLife--;
+                        }
+                    }
+
+                    if (canRemoveElements) {
+                        // Remove both of them
+                        this.listOfElements = this.listOfElements.filter(element => element.isPos(x, y) === false);
+                        this.listOfElements.push(new ElementClass({
+                            type: ElementTypeEnum.KA_BOOM,
+                            speed: 5,
+                            moveSequence: [],
+                            pos: { x, y },
+                        }));
                     }
                 }
                 if (elements.length > 2) {
@@ -185,7 +176,8 @@ export class GameClass implements GameInterface {
             const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
             this.listOfElements.push(new ElementClass({
                 type: ElementTypeEnum.SHOT_ENEMY,
-                speed: 3,
+                speed: 4,
+                moveSequence: [ElementMoveDirection.DOWN],
                 pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y + 1 },
             }));
         }
@@ -201,6 +193,7 @@ export class GameClass implements GameInterface {
                 this.listOfElements.push(new ElementClass({
                     type: ElementTypeEnum.SHOT_PLAYER,
                     speed: 3,
+                    moveSequence: [ElementMoveDirection.UP],
                     pos: { x, y },
                 }));
             }
@@ -222,8 +215,8 @@ export class GameClass implements GameInterface {
             }).join("\r\n")}`;
     }
 
-    public movePlayer(direction: PlayerMoveDirection) {
-        this.playerPosOffsset = direction === PlayerMoveDirection.LEFT ? this.playerPosOffsset - 1 : this.playerPosOffsset + 1;
+    public movePlayer(direction: ElementMoveDirection) {
+        this.playerPosOffsset = direction === ElementMoveDirection.LEFT ? this.playerPosOffsset - 1 : this.playerPosOffsset + 1;
     }
 
     private findElement(x: number, y: number): ElemenInterfaceOrNull {
@@ -240,15 +233,12 @@ export class GameClass implements GameInterface {
         this.listOfElements = levels[this.level].getEnemies();
     }
 
-    private addEnemiesMoves(levels: LevelClassInterface[]) {
-        this.enemiesMoveState = levels[this.level].getEnemiesMove();
-    }
-
     private addPlayer() {
         if (this.playerLife > 0) {
             this.listOfElements.push(new ElementClass({
                 speed: 1,
                 pos: { x: 5, y: 9 },
+                moveSequence: [],
                 type: ElementTypeEnum.PLAYER,
             }));
         }

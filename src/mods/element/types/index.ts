@@ -15,4 +15,16 @@ export interface ElementInterface {
     setPosX(x: number): void;
     setPosY(y: number): void;
     getSpeed(): number;
+    setNextPosition(): void;
+}
+
+export enum ElementMoveDirection {
+    LEFT,
+    RIGHT,
+    DOWN,
+    UP,
+    LEFT_UP,
+    LEFT_DOWN,
+    RIGHT_UP,
+    RIGHT_DOWN
 }
