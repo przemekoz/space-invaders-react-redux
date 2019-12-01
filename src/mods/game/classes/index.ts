@@ -20,6 +20,7 @@ export class GameClass implements GameInterface {
     private maxX = 11;
     private maxY = 10;
     private level = 0;
+    private score = 0;
     private levels: LevelClassInterface[] = [];
     private tickCounter = -1;
     private playerLife = 3;
@@ -27,7 +28,8 @@ export class GameClass implements GameInterface {
     private playerPosOffsset = 0;
     private enemyShootInterval: any = null;
     private enemyShootIntervalTime = 0;
-    private endGame = false;
+    private gameOver = false;
+    private gameWin = false;
 
     constructor(params: Params) {
         this.levels = params.levels;
@@ -40,11 +42,13 @@ export class GameClass implements GameInterface {
     }
 
     private addLevel() {
-        this.addEnemies(this.levels);
         this.stopEnemyShooting();
-        this.enemyShootInterval = setInterval(() => {
-            this.enemyShoot();
-        }, this.levels[this.level].getShootInterval());
+        if (this.isGameEnd() === false) {
+            this.addEnemies(this.levels);
+            this.enemyShootInterval = setInterval(() => {
+                this.enemyShoot();
+            }, this.levels[this.level].getShootInterval());
+        }
     }
 
     public render(): GameClassRenderInterface {
@@ -105,10 +109,13 @@ export class GameClass implements GameInterface {
         if (isEnemy === undefined && this.playerLife > 0) {
             this.level++;
             if (this.levels.length === this.level) {
-                // TODO STOP THE GAME
+                this.gameWin = true;
             } else {
                 this.addLevel();
             }
+        }
+        if (this.playerLife === 0) {
+            this.gameOver = true;
         }
         this.tickCounter++;
     }
@@ -126,10 +133,9 @@ export class GameClass implements GameInterface {
 
                     let canRemoveElements = false;
                     if (isEnemy && isPlayerShoot && isEnemy instanceof ElementEnemyClass) {
+                        this.score += isEnemy.getScore();
                         const strength = isEnemy.getStrength();
-                        console.log(strength)
                         if (strength === 1) {
-                            // TODO - add score
                             canRemoveElements = true;
                         }
                         else if (strength > 1) {
@@ -203,6 +209,9 @@ export class GameClass implements GameInterface {
     public getStats(): string {
         return `
         life: ${this.playerLife}
+        gameOver: ${this.gameOver}
+        gameWin: ${this.gameWin}
+        score: ${this.score}
         level: ${this.level + 1}
         tickCounter: ${this.tickCounter}
         playerPosOffsset: ${this.playerPosOffsset}
@@ -242,5 +251,9 @@ export class GameClass implements GameInterface {
                 type: ElementTypeEnum.PLAYER,
             }));
         }
+    }
+
+    private isGameEnd(): boolean {
+        return this.gameOver || this.gameWin;
     }
 }

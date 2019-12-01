@@ -14,6 +14,7 @@ interface Params {
 export class ElementEnemyClass extends ElementClass implements ElementInterface, ElementEnemyInterface {
     private subtype: ElementEnemySubtype;
     private strength: number;
+    private score: number;
 
     constructor(params: Params) {
         super({
@@ -24,6 +25,7 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
         });
         this.subtype = params.subtype;
         this.strength = params.subtype === ElementEnemySubtype.CHIEF ? 2 : params.strength || 1;
+        this.score = params.subtype === ElementEnemySubtype.CHIEF ? 200 : 100;
     }
 
     public getSubType() {
@@ -36,5 +38,9 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
 
     public setStrength(strength: number) {
         this.strength = strength;
+    }
+
+    public getScore(): number {
+        return this.score;
     }
 }
