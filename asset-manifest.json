@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/space-invaders-react-redux/static/css/main.1ac53e6e.chunk.css",
-    "main.js": "/space-invaders-react-redux/static/js/main.73fab7dd.chunk.js",
-    "main.js.map": "/space-invaders-react-redux/static/js/main.73fab7dd.chunk.js.map",
+    "main.js": "/space-invaders-react-redux/static/js/main.590eddcd.chunk.js",
+    "main.js.map": "/space-invaders-react-redux/static/js/main.590eddcd.chunk.js.map",
     "runtime-main.js": "/space-invaders-react-redux/static/js/runtime-main.526a78f1.js",
     "runtime-main.js.map": "/space-invaders-react-redux/static/js/runtime-main.526a78f1.js.map",
     "static/js/2.8d47440e.chunk.js": "/space-invaders-react-redux/static/js/2.8d47440e.chunk.js",
     "static/js/2.8d47440e.chunk.js.map": "/space-invaders-react-redux/static/js/2.8d47440e.chunk.js.map",
     "index.html": "/space-invaders-react-redux/index.html",
-    "precache-manifest.f9d9928df7d5b9c540ac10b495650169.js": "/space-invaders-react-redux/precache-manifest.f9d9928df7d5b9c540ac10b495650169.js",
+    "precache-manifest.58948635bda062fae724c1d77b3112d5.js": "/space-invaders-react-redux/precache-manifest.58948635bda062fae724c1d77b3112d5.js",
     "service-worker.js": "/space-invaders-react-redux/service-worker.js",
     "static/css/main.1ac53e6e.chunk.css.map": "/space-invaders-react-redux/static/css/main.1ac53e6e.chunk.css.map"
   },
@@ -16,6 +16,6 @@
     "static/js/runtime-main.526a78f1.js",
     "static/js/2.8d47440e.chunk.js",
     "static/css/main.1ac53e6e.chunk.css",
-    "static/js/main.73fab7dd.chunk.js"
+    "static/js/main.590eddcd.chunk.js"
   ]
 }
