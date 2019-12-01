@@ -11,5 +11,11 @@ export interface GameInterface {
     findCollisions(): void;
     playerShoot(): void;
     enemyShoot(): void;
+    reset(): void;
+    getScore(): number;
+    getLevel(): number;
+    isGameWin(): boolean;
+    isGameOver(): boolean;
+    getPlayerLife(): number;
 }
 

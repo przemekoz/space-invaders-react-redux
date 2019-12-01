@@ -2,16 +2,16 @@ import React from "react";
 import { GameInterface, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
 import { ElementMoveDirection } from "../../../element/types";
+import { PlayerComponent } from "../../../elementPlayer/components";
 
 interface Props {
     game: GameInterface;
 }
 
 interface State {
-    stats: string;
+    start: boolean;
     listOfElements: GameClassRenderInterface;
 }
-
 
 export class GameComponent extends React.Component<Props, State> {
 
@@ -21,57 +21,48 @@ export class GameComponent extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            stats: "",
+            start: false,
             listOfElements: [],
         };
     }
 
     componentDidMount() {
         this.renderGame();
+    }
+
+    public start() {
         this.tickInterval = setInterval(() => {
-            this.tick();
+            this.props.game.calculateNextPos();
+            this.props.game.findCollisions();
+            this.renderGame();
         }, this.tickIntervalTime);
+    }
+
+    public reset() {
+        this.stop();
+        this.setState({ start: false, listOfElements: [] });
+        this.renderGame();
+        this.props.game.reset();
+    }
+
+    public stop() {
+        clearInterval(this.tickInterval);
     }
 
     public renderGame() {
         this.setState({ listOfElements: this.props.game.render() })
-        this.refreshStats();
-    }
-
-    public findCollisions() {
-        this.props.game.findCollisions();
-        this.refreshStats();
-    }
-
-    public enemyShoot() {
-        this.props.game.enemyShoot();
-        this.refreshStats();
-    }
-
-    public tick() {
-        this.calculateNextPos();
-        this.findCollisions();
-        this.renderGame();
     }
 
     public playerShoot() {
         this.props.game.playerShoot();
-        this.refreshStats();
-    }
-
-    public calculateNextPos() {
-        this.props.game.calculateNextPos();
-        this.refreshStats();
     }
 
     public movePlayerLeft() {
         this.props.game.movePlayer(ElementMoveDirection.LEFT);
-        this.refreshStats();
     }
 
     public movePlayerRight() {
         this.props.game.movePlayer(ElementMoveDirection.RIGHT);
-        this.refreshStats();
     }
 
     public handleKeyPress(event: React.KeyboardEvent<any>) {
@@ -87,65 +78,57 @@ export class GameComponent extends React.Component<Props, State> {
     }
 
     public render() {
-        const { listOfElements, stats } = this.state;
+        const { listOfElements } = this.state;
+        const { game } = this.props;
         return (
-            <>
-                I'm the Game
-                <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none' }}>
-                    <div style={{ float: 'left', width: '50%' }}>
-                        <table>
-                            <tbody>
-                                {listOfElements.map((row: ElemenInterfaceOrNull[], index: number) =>
-                                    <tr key={index}>
-                                        {row.map((element: ElemenInterfaceOrNull, index: number) => (
-                                            <td key={index} >
-                                                {element ? <ElementComponent element={element} /> : <div style={{ width: "48px", height: "48px" }}>&nbsp;</div>}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                        <div style={{ marginTop: '150px', width: '100%' }}>
-                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
-                                player<br />
-                                <button onClick={this.movePlayerLeft.bind(this)}>left</button>
-                                <button onClick={this.movePlayerRight.bind(this)}>right</button>
-                                <button onClick={this.playerShoot.bind(this)}>shoot!</button>
-                            </div>
-                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
-                                enemy<br />
-                                <button onClick={this.enemyShoot.bind(this)}>shoot!</button>
-                            </div>
-                            <div style={{ float: 'left', width: '25%', textAlign: 'left', paddingLeft: '1em' }}>
-
-                                actions<br />
-                                <button onClick={this.tick.bind(this)}>tick ! (1,2,3)</button><br />
-                                <button onClick={this.calculateNextPos.bind(this)}>1. calculate next pos</button><br />
-                                <button onClick={this.findCollisions.bind(this)}>2. check collisions</button><br />
-                                <button onClick={this.renderGame.bind(this)}>3. render</button><br />
-                            </div>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <div style={{ flex: 1 }}>
+                    <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none' }}>
+                        <div style={{ float: 'left', width: '50%' }}>
+                            <table>
+                                <tbody>
+                                    {listOfElements.map((row: ElemenInterfaceOrNull[], index: number) =>
+                                        <tr key={index}>
+                                            {row.map((element: ElemenInterfaceOrNull, index: number) => (
+                                                <td key={index} >
+                                                    {element ? <ElementComponent element={element} /> : <div style={{ width: "48px", height: "48px" }}>&nbsp;</div>}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-
-                    </div>
-                    <div style={{ float: 'left', width: '40%', textAlign: 'left', paddingLeft: '1em' }}>
-                        <small>
-                            <pre>
-                                tickInterval: {this.tickIntervalTime}ms
-                                {stats}
-                            </pre>
-                        </small>
                     </div>
                 </div>
-            </>
-        )
+                <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ flex: 1 }}>
+                            <p>Score: <strong>{game.getScore()}</strong></p>
+                            <p>Level: <strong>{game.getLevel()}</strong></p>
+                            {game.isGameWin() ? <p style={{ color: 'green' }}><strong>YOU WIN!</strong></p> : null}
+                            {game.isGameOver() ? <p style={{ color: 'red' }}><strong>GAME OVER!</strong></p> : null}
+                        </div>
+                        <div style={{ flex: 1, marginBottom: '1em' }}>
+                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.start.bind(this)}>Start</button>
+                        </div>
+                        <div style={{ flex: 1, marginBottom: '10em' }}>
+                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.reset.bind(this)}>Reset</button>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            {this.renderPlayerLifes().map(player => <div style={{ display: 'inline-block', marginRight: '0.5em' }}><PlayerComponent /></div>)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
-    private stop() {
-        clearInterval(this.tickInterval);
-    }
-
-    private refreshStats() {
-        this.setState({ stats: this.props.game.getStats() })
+    private renderPlayerLifes() {
+        if (this.props.game.getPlayerLife() > 1) {
+            return Array.from(Array(this.props.game.getPlayerLife() - 1).keys());
+        } else {
+            return [];
+        }
     }
 }

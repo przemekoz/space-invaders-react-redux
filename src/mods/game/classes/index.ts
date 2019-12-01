@@ -37,18 +37,42 @@ export class GameClass implements GameInterface {
         this.addPlayer();
     }
 
-    public stopEnemyShooting() {
-        clearInterval(this.enemyShootInterval);
+    public reset() {
+        this.stopEnemyShooting();
+        this.level = 0;
+        this.score = 0;
+        this.playerLife = 3;
+        this.tickCounter = -1;
+        this.playerPosOffsset = 0;
+        this.gameOver = false;
+        this.gameWin = false;
+        this.listOfElements = [];
+        this.addLevel();
+        this.addPlayer();
     }
 
-    private addLevel() {
-        this.stopEnemyShooting();
-        if (this.isGameEnd() === false) {
-            this.addEnemies(this.levels);
-            this.enemyShootInterval = setInterval(() => {
-                this.enemyShoot();
-            }, this.levels[this.level].getShootInterval());
-        }
+    public getScore(): number {
+        return this.score;
+    }
+
+    public getLevel(): number {
+        return this.level + 1;
+    }
+
+    public isGameOver(): boolean {
+        return this.gameOver;
+    }
+
+    public isGameWin(): boolean {
+        return this.gameWin;
+    }
+
+    public getPlayerLife(): number {
+        return this.playerLife;
+    }
+
+    public stopEnemyShooting() {
+        clearInterval(this.enemyShootInterval);
     }
 
     public render(): GameClassRenderInterface {
@@ -106,7 +130,7 @@ export class GameClass implements GameInterface {
         }
 
         const isEnemy = this.listOfElements.find(element => element.getType() === ElementTypeEnum.ENEMY);
-        if (isEnemy === undefined && this.playerLife > 0) {
+        if (isEnemy === undefined && this.playerLife > 0 && this.isGameEnd() === false) {
             this.level++;
             if (this.levels.length === this.level) {
                 this.gameWin = true;
@@ -255,5 +279,15 @@ export class GameClass implements GameInterface {
 
     private isGameEnd(): boolean {
         return this.gameOver || this.gameWin;
+    }
+
+    private addLevel() {
+        this.stopEnemyShooting();
+        if (this.isGameEnd() === false) {
+            this.addEnemies(this.levels);
+            this.enemyShootInterval = setInterval(() => {
+                this.enemyShoot();
+            }, this.levels[this.level].getShootInterval());
+        }
     }
 }
