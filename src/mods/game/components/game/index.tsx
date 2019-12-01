@@ -39,14 +39,10 @@ export class GameComponent extends React.Component<Props, State> {
     }
 
     public reset() {
-        this.stop();
+        clearInterval(this.tickInterval);
         this.setState({ start: false, listOfElements: [] });
         this.renderGame();
         this.props.game.reset();
-    }
-
-    public stop() {
-        clearInterval(this.tickInterval);
     }
 
     public renderGame() {
@@ -103,20 +99,32 @@ export class GameComponent extends React.Component<Props, State> {
                 </div>
                 <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, textAlign: 'left', marginBottom: '1em' }}>
                             <p>Score: <strong>{game.getScore()}</strong></p>
                             <p>Level: <strong>{game.getLevel()}</strong></p>
-                            {game.isGameWin() ? <p style={{ color: 'green' }}><strong>YOU WIN!</strong></p> : null}
-                            {game.isGameOver() ? <p style={{ color: 'red' }}><strong>GAME OVER!</strong></p> : null}
+                        </div>
+                        <div style={{ flex: 1, marginBottom: '8em' }}>
+                            {this.renderPlayerLifes().map(playerIndex => <div key={playerIndex} style={{ display: 'inline-block', marginRight: '0.5em' }}><PlayerComponent /></div>)}
                         </div>
                         <div style={{ flex: 1, marginBottom: '1em' }}>
-                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.start.bind(this)}>Start</button>
+                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.start.bind(this)}>START</button>
                         </div>
-                        <div style={{ flex: 1, marginBottom: '10em' }}>
-                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.reset.bind(this)}>Reset</button>
+                        <div style={{ flex: 1, marginBottom: '1em' }}>
+                            <button style={{ width: '100px', padding: '5px 10px', fontWeight: 'bold', borderRadius: '5px', cursor: 'pointer', outline: 'none' }} onClick={this.reset.bind(this)}>RESET</button>
                         </div>
-                        <div style={{ flex: 1 }}>
-                            {this.renderPlayerLifes().map(player => <div style={{ display: 'inline-block', marginRight: '0.5em' }}><PlayerComponent /></div>)}
+
+                        <div style={{ flex: 1, textAlign: 'left' }}>
+                            {this.tickInterval === null ?
+                                <div>
+                                    <h3>Press START button!</h3>
+                                    <p><small>Move left: left arrow</small></p>
+                                    <p><small>Move right: right arrow</small></p>
+                                    <p><small>Shoot: Ctrl</small></p>
+                                </div>
+                                : null}
+
+                            {game.isGameWin() ? <h2 style={{ color: 'green', padding: '1em', border: '1px solid white', borderRadius: '0.5em', textAlign: 'center' }}>WELL DONE! YOU WIN!</h2> : null}
+                            {game.isGameOver() ? <h2 style={{ color: 'red', padding: '1em', border: '1px solid white', borderRadius: '0.5em', textAlign: 'center' }}>GAME OVER! YOU LOSE!</h2> : null}
                         </div>
                     </div>
                 </div>
