@@ -9,6 +9,7 @@ interface Params {
     moveSequence: ElementMoveDirection[];
     subtype: ElementEnemySubtype;
     strength?: number;
+    score?: number;
 }
 
 export class ElementEnemyClass extends ElementClass implements ElementInterface, ElementEnemyInterface {
@@ -25,7 +26,7 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
         });
         this.subtype = params.subtype;
         this.strength = params.subtype === ElementEnemySubtype.CHIEF ? 2 : params.strength || 1;
-        this.score = params.subtype === ElementEnemySubtype.CHIEF ? 200 : 100;
+        this.score = params.subtype === ElementEnemySubtype.CHIEF ? 200 : params.score || 100;
     }
 
     public getSubType() {

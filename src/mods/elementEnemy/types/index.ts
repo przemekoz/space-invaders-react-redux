@@ -3,7 +3,8 @@ import { ElementInterface } from "../../element/types";
 export enum ElementEnemySubtype {
     BLUE,
     RED,
-    CHIEF
+    CHIEF,
+    BOSS
 }
 
 export interface ElementEnemyInterface extends ElementInterface {

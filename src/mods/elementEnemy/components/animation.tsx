@@ -2,6 +2,7 @@ import React from 'react';
 
 interface Props {
     images: any[],
+    size?: number;
 }
 
 interface State {
@@ -15,12 +16,16 @@ export class EnemyAnimationComponent extends React.Component<Props, State> {
     private max = 10;
     private interval: any = null;
     private intervalTime = (Math.floor(Math.random() * (this.max - this.min + 1)) + this.min) * 100;
+    private size = 48;
 
     constructor(props: Props) {
         super(props);
         this.state = {
             image: this.props.images[0]
         };
+        if (props.size) {
+            this.size = props.size;
+        }
     }
 
     componentDidMount() {
@@ -39,7 +44,7 @@ export class EnemyAnimationComponent extends React.Component<Props, State> {
 
     render() {
         return (
-            <img src={this.state.image} width="48" height="48" alt="this is the enemy" />
+            <img src={this.state.image} width={this.size} height={this.size} alt="this is the enemy" />
         );
     }
 }

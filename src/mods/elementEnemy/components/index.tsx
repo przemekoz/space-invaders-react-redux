@@ -2,6 +2,8 @@ import React from 'react';
 import enemy from '../images/enemyNormal48.png';
 import enemySmall from '../images/enemyNormalSmall48.png';
 import enemyRed from '../images/enemyRed48.png';
+import enemyBoss from '../images/boss240.png';
+import enemyBossRedEyes from '../images/bossRedEyes240.png';
 import enemyRedSmall from '../images/enemyRedSmall48.png';
 import enemyChief from '../images/enemyChiefNormal48.png';
 import enemyChiefSmall from '../images/enemyChiefNormalSmall48.png';
@@ -22,6 +24,9 @@ export const EnemyComponent = (props: Props) => {
 
         case ElementEnemySubtype.RED:
             return <EnemyAnimationComponent images={[enemyRed, enemyRedSmall]} />;
+
+        case ElementEnemySubtype.BOSS:
+            return <EnemyAnimationComponent size={240} images={[enemyBoss, enemyBossRedEyes]} />;
 
         case ElementEnemySubtype.CHIEF:
             return props.element.getStrength() === 2 ?
