@@ -5,7 +5,8 @@ export type GameClassRenderInterface = Array<Array<ElementInterface | null>>;
 
 export interface GameInterface {
     movePlayer(direction: ElementMoveDirection): void;
-    render(): GameClassRenderInterface;
+    // render(): GameClassRenderInterface;
+    getElements(): ElementInterface[];
     getStats(): string;
     calculateNextPos(): void;
     findCollisions(): void;

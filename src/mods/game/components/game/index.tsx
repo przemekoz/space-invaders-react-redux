@@ -1,8 +1,9 @@
 import React from "react";
 import { GameInterface, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
-import { ElementMoveDirection } from "../../../element/types";
+import { ElementMoveDirection, ElementInterface } from "../../../element/types";
 import { PlayerComponent } from "../../../elementPlayer/components";
+import { UNIT } from "../../config/levels";
 
 interface Props {
     game: GameInterface;
@@ -10,13 +11,14 @@ interface Props {
 
 interface State {
     start: boolean;
-    listOfElements: GameClassRenderInterface;
+    // listOfElements: GameClassRenderInterface;
+    listOfElements: ElementInterface[];
 }
 
 export class GameComponent extends React.Component<Props, State> {
 
     private tickInterval: any = null;
-    private tickIntervalTime = 50;
+    private tickIntervalTime = 20;
 
     constructor(props: Props) {
         super(props);
@@ -41,12 +43,12 @@ export class GameComponent extends React.Component<Props, State> {
     public reset() {
         clearInterval(this.tickInterval);
         this.setState({ start: false, listOfElements: [] });
-        this.renderGame();
+        // this.renderGame();
         this.props.game.reset();
     }
 
     public renderGame() {
-        this.setState({ listOfElements: this.props.game.render() })
+        this.setState({ listOfElements: this.props.game.getElements() })
     }
 
     public playerShoot() {
@@ -79,21 +81,14 @@ export class GameComponent extends React.Component<Props, State> {
         return (
             <div style={{ display: 'flex', flexDirection: 'row' }}>
                 <div style={{ flex: 1 }}>
-                    <div tabIndex={0} onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none' }}>
-                        <div style={{ float: 'left', width: '50%' }}>
-                            <table>
-                                <tbody>
-                                    {listOfElements.map((row: ElemenInterfaceOrNull[], index: number) =>
-                                        <tr key={index}>
-                                            {row.map((element: ElemenInterfaceOrNull, index: number) => (
-                                                <td key={index} >
-                                                    {element ? <ElementComponent element={element} /> : <div style={{ width: "48px", height: "48px" }}>&nbsp;</div>}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                    <input type="text" style={{ width: "20px", background: 'white', border: 'none' }} autoFocus onKeyDown={this.handleKeyPress.bind(this)} />
+                    <div tabIndex={0}>
+                        <div onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none', float: 'left', width: '500px', height: '500px', position: 'relative' }}>
+                            {listOfElements.map((element: ElementInterface, index: number) =>
+                                <div style={{ position: 'absolute', top: `${element.getPos().y * UNIT}px`, left: `${element.getPos().x * UNIT}px` }} key={index}>
+                                    <ElementComponent element={element} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

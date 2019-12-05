@@ -8,6 +8,8 @@ interface Params {
     speed: number;
     moveSequence: ElementMoveDirection[];
     subtype: ElementEnemySubtype;
+    sizeX: number;
+    sizeY: number;
     strength?: number;
     score?: number;
 }
@@ -21,6 +23,8 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
         super({
             pos: params.pos,
             speed: params.speed,
+            sizeX: params.sizeX,
+            sizeY: params.sizeY,
             moveSequence: params.moveSequence,
             type: ElementTypeEnum.ENEMY,
         });

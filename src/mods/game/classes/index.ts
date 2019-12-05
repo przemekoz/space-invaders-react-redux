@@ -3,6 +3,7 @@ import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum, ElementMoveDirection } from "../../element/types";
 import { LevelClassInterface } from "../../level/types";
 import { ElementEnemyClass } from "../../elementEnemy/classes";
+import { UNIT } from "../config/levels";
 
 /*
  *
@@ -17,8 +18,8 @@ interface Params {
 }
 
 export class GameClass implements GameInterface {
-    private maxX = 11;
-    private maxY = 10;
+    private maxX = 11 * 48 / UNIT;
+    private maxY = 10 * 48 / UNIT;
     private level = 0;
     private score = 0;
     private levels: LevelClassInterface[] = [];
@@ -27,7 +28,6 @@ export class GameClass implements GameInterface {
     private listOfElements: ElementInterface[] = [];
     private playerPosOffsset = 0;
     private enemyShootInterval: any = null;
-    private enemyShootIntervalTime = 0;
     private gameOver = false;
     private gameWin = false;
 
@@ -35,6 +35,10 @@ export class GameClass implements GameInterface {
         this.levels = params.levels;
         this.addLevel();
         this.addPlayer();
+    }
+
+    public getElements(): ElementInterface[] {
+        return this.listOfElements;
     }
 
     public reset() {
@@ -75,48 +79,35 @@ export class GameClass implements GameInterface {
         clearInterval(this.enemyShootInterval);
     }
 
-    public render(): GameClassRenderInterface {
-        const toRender = [];
-        for (let y = 0; y < this.maxY; y++) {
-            const row: ElemenInterfaceOrNull[] = [];
-            for (let x = 0; x < this.maxX; x++) {
-                row.push(this.findElement(x, y));
-            }
-            toRender.push(row);
-        }
-        return toRender;
-    }
-
+    // 1st action
     public calculateNextPos() {
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
-            if (element.getPos().x > this.maxX + 10 || element.getPos().y > this.maxY + 10) {
+            if (element.getPos().x > this.maxX || element.getPos().y > this.maxY) {
                 elementsToRemove.push(index);
             }
 
-            if (element.getPos().x < -10 || element.getPos().y < -10) {
+            if (element.getPos().x < 0 || element.getPos().y < 0) {
                 elementsToRemove.push(index);
             }
 
-            if (this.tickCounter % element.getSpeed() === 0) {
+            element.setNextPosition();
 
-                switch (element.getType()) {
-
-                    case ElementTypeEnum.KA_BOOM:
-                        elementsToRemove.push(index);
-                        break;
-
-                    case ElementTypeEnum.PLAYER:
-                        const potentialX = element.getPos().x + this.playerPosOffsset;
-                        element.setPosX(potentialX < 0 ? 0 : potentialX > this.maxX - 1 ? this.maxX - 1 : potentialX);
-                        break;
-
-                    default:
-                        element.setNextPosition();
-                        break;
-                }
+            // if (this.tickCounter % element.getSpeed() === 0) {
+            switch (element.getType()) {
+                case ElementTypeEnum.KA_BOOM:
+                    elementsToRemove.push(index);
+                    break;
+                case ElementTypeEnum.PLAYER:
+                    const potentialX = element.getPos().x + this.playerPosOffsset;
+                    element.setPosX(potentialX < 0 ? 0 : potentialX > this.maxX - 1 ? this.maxX - 1 : potentialX);
+                    break;
+                default:
+                    element.setPosition();
+                    break;
             }
+            // }
         });
 
         elementsToRemove.forEach(index => {
@@ -145,15 +136,18 @@ export class GameClass implements GameInterface {
     }
 
     public findCollisions() {
-        for (let y = 0; y < this.maxY; y++) {
-            for (let x = 0; x < this.maxX; x++) {
-                const elements = this.findElements(x, y);
-                if (elements.length === 2) {
+        const listOfElements = [...this.listOfElements];
+        const length = listOfElements.length;
+        for (let i = 0; i < length; i++) {
+            const firstElement = listOfElements.shift();
+            if (firstElement) {
+                const conflicts = listOfElements.filter((element: ElementInterface) => element.getArea().some(v => firstElement.getArea().indexOf(v) !== -1));
+                if (conflicts.length === 2) {
 
-                    const isEnemy = elements.find(element => element.getType() === ElementTypeEnum.ENEMY);
-                    const isPlayer = elements.find(element => element.getType() === ElementTypeEnum.PLAYER);
-                    const isShotEnemy = elements.find(element => element.getType() === ElementTypeEnum.SHOT_ENEMY);
-                    const isPlayerShoot = elements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER);
+                    const isEnemy = conflicts.find(element => element.getType() === ElementTypeEnum.ENEMY);
+                    const isPlayer = conflicts.find(element => element.getType() === ElementTypeEnum.PLAYER);
+                    const isShotEnemy = conflicts.find(element => element.getType() === ElementTypeEnum.SHOT_ENEMY);
+                    const isPlayerShoot = conflicts.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER);
 
                     let canRemoveElements = false;
                     if (isEnemy && isPlayerShoot && isEnemy instanceof ElementEnemyClass) {
@@ -165,8 +159,8 @@ export class GameClass implements GameInterface {
                         else if (strength > 1) {
                             isEnemy.setStrength(strength - 1);
                             // remove only shoot
-                            const isPlayerShootIndex = this.listOfElements.findIndex(element => element.isPos(x, y) && element.getType() === ElementTypeEnum.SHOT_PLAYER);
-                            this.listOfElements.splice(isPlayerShootIndex, 1);
+                            // const isPlayerShootIndex = this.listOfElements.findIndex(element => element.isPosWithSize(x, y) && element.getType() === ElementTypeEnum.SHOT_PLAYER);
+                            // this.listOfElements.splice(isPlayerShootIndex, 1);
                         }
                     } else {
                         canRemoveElements = true;
@@ -177,18 +171,20 @@ export class GameClass implements GameInterface {
 
                     if (canRemoveElements) {
                         // Remove both of them
-                        this.listOfElements = this.listOfElements.filter(element => element.isPos(x, y) === false);
-                        this.listOfElements.push(new ElementClass({
-                            type: ElementTypeEnum.KA_BOOM,
-                            speed: 5,
-                            moveSequence: [],
-                            pos: { x, y },
-                        }));
+                        // this.listOfElements = this.listOfElements.filter(element => element.isPosWithSize(x, y) === false);
+                        // this.listOfElements.push(new ElementClass({
+                        //     type: ElementTypeEnum.KA_BOOM,
+                        //     speed: 5,
+                        //     sizeX: 48 / UNIT,
+                        //     sizeY: 48 / UNIT,
+                        //     moveSequence: [],
+                        //     pos: { x, y },
+                        // }));
                     }
                 }
-                if (elements.length > 2) {
+                if (conflicts.length > 2) {
                     console.error('Something went wrong! More than 2 elements in one place!')
-                    console.error(elements);
+                    console.error(conflicts);
                 }
             }
         }
@@ -206,9 +202,11 @@ export class GameClass implements GameInterface {
             const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
             this.listOfElements.push(new ElementClass({
                 type: ElementTypeEnum.SHOT_ENEMY,
-                speed: 4,
+                speed: 1,
+                sizeX: 48 / UNIT,
+                sizeY: 48 / UNIT,
                 moveSequence: [ElementMoveDirection.DOWN],
-                pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y + 1 },
+                pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y + (48 / UNIT / 2) },
             }));
         }
     }
@@ -218,13 +216,15 @@ export class GameClass implements GameInterface {
         if (player) {
             const x = player.getPos().x;
             const y = player.getPos().y - 1;
-            const playerShoot = this.listOfElements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER && element.isPos(x, y));
+            const playerShoot = this.listOfElements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER && element.isPosWithSize(x, y));
             if (playerShoot === undefined) {
                 this.listOfElements.push(new ElementClass({
                     type: ElementTypeEnum.SHOT_PLAYER,
-                    speed: 3,
+                    speed: 1,
+                    sizeX: 48 / UNIT,
+                    sizeY: 48 / UNIT,
                     moveSequence: [ElementMoveDirection.UP],
-                    pos: { x, y },
+                    pos: { x, y: y - (48 / UNIT / 2) },
                 }));
             }
         }
@@ -258,7 +258,7 @@ export class GameClass implements GameInterface {
     }
 
     private findElements(x: number, y: number): ElementInterface[] {
-        const found = this.listOfElements.filter(element => element.isPos(x, y));
+        const found = this.listOfElements.filter(element => element.isPosWithSize(x, y));
         return found || [];
     }
 
@@ -270,7 +270,9 @@ export class GameClass implements GameInterface {
         if (this.playerLife > 0) {
             this.listOfElements.push(new ElementClass({
                 speed: 1,
-                pos: { x: 5, y: 9 },
+                pos: { x: 5 * 48 / UNIT, y: 9 * 48 / UNIT },
+                sizeX: 48 / UNIT,
+                sizeY: 48 / UNIT,
                 moveSequence: [],
                 type: ElementTypeEnum.PLAYER,
             }));
