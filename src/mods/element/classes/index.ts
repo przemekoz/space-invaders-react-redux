@@ -15,6 +15,7 @@ export interface Params {
 }
 
 export class ElementClass implements ElementInterface {
+    private id = 0;
     private pos: Pos;
     private nextPos: Pos;
     private speed: number;
@@ -24,6 +25,8 @@ export class ElementClass implements ElementInterface {
     private sizeX: number;
     private sizeY: number;
 
+    private static idCounter = 0;
+
     constructor(params: Params) {
         this.pos = params.pos;
         this.nextPos = params.pos;
@@ -32,9 +35,19 @@ export class ElementClass implements ElementInterface {
         this.sizeX = params.sizeX;
         this.sizeY = params.sizeY;
         this.moveSequence = params.moveSequence;
+        this.id = ElementClass.idCounter;
+        ElementClass.idCounter++;
     }
 
-    public getArea(): number[] {
+    public setId(id: number) {
+        this.id = id;
+    }
+
+    public getId(): number {
+        return this.id;
+    }
+
+    public getArea(): string[] {
         // return indexes taken by element
         // area has for pos x=1, y=2, and sizeX = 2, sizeY = 3
         //  [12, 22, 32, 
@@ -43,30 +56,26 @@ export class ElementClass implements ElementInterface {
         //   15, 25, 35]
         // 
         const area = [];
-        for (let i = 0; i <= this.sizeX; i++) {
-            const value = (this.pos.x + i) * 10 + this.pos.y;
-            if (area.includes(value) === false) {
-                area.push(value);
+        for (let y = 0; y <= this.sizeY; y++) {
+            for (let x = 0; x <= this.sizeX; x++) {
+                const value = `${this.pos.x + x}x${this.pos.y + y}`;
+                if (area.includes(value) === false) {
+                    area.push(value);
+                }
             }
         }
-        for (let i = 0; i <= this.sizeY; i++) {
-            const value = this.pos.x * 10 + this.pos.y + i;
-            if (area.includes(value) === false) {
-                area.push(value);
-            }
-        }
-        for (let i = 0; i <= this.sizeX; i++) {
-            const value = (this.nextPos.x + i) * 10 + this.nextPos.y;
-            if (area.includes(value) === false) {
-                area.push(value);
-            }
-        }
-        for (let i = 0; i <= this.sizeY; i++) {
-            const value = this.nextPos.x * 10 + this.nextPos.y + i;
-            if (area.includes(value) === false) {
-                area.push(value);
-            }
-        }
+        // for (let i = 0; i <= this.sizeX; i++) {
+        //     const value = (this.nextPos.x + i) * 10 + this.nextPos.y;
+        //     if (area.includes(value) === false) {
+        //         area.push(value);
+        //     }
+        // }
+        // for (let i = 0; i <= this.sizeY; i++) {
+        //     const value = this.nextPos.x * 10 + this.nextPos.y + i;
+        //     if (area.includes(value) === false) {
+        //         area.push(value);
+        //     }
+        // }
         return area;
     }
 
@@ -124,9 +133,9 @@ export class ElementClass implements ElementInterface {
         return isPos;
     }
 
-    public isNextPos(x: number, y: number): boolean {
-        return this.nextPos.x === x && this.nextPos.y === y;
-    }
+    // public isNextPos(x: number, y: number): boolean {
+    //     return this.nextPos.x === x && this.nextPos.y === y;
+    // }
 
     public getType(): ElementTypeEnum {
         return this.type;

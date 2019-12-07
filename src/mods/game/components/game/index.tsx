@@ -1,9 +1,10 @@
 import React from "react";
-import { GameInterface, GameClassRenderInterface, ElemenInterfaceOrNull } from "../../types";
+import { GameInterface } from "../../types";
 import { ElementComponent } from "../../../element/components/element";
 import { ElementMoveDirection, ElementInterface } from "../../../element/types";
 import { PlayerComponent } from "../../../elementPlayer/components";
 import { UNIT } from "../../config/levels";
+import { GameDevComponent } from "./dev";
 
 interface Props {
     game: GameInterface;
@@ -11,19 +12,20 @@ interface Props {
 
 interface State {
     start: boolean;
-    // listOfElements: GameClassRenderInterface;
+    devMode: boolean;
     listOfElements: ElementInterface[];
 }
 
 export class GameComponent extends React.Component<Props, State> {
 
     private tickInterval: any = null;
-    private tickIntervalTime = 20;
+    private tickIntervalTime = 1000;
 
     constructor(props: Props) {
         super(props);
         this.state = {
             start: false,
+            devMode: window.location.search === '?dev',
             listOfElements: [],
         };
     }
@@ -123,6 +125,7 @@ export class GameComponent extends React.Component<Props, State> {
                         </div>
                     </div>
                 </div>
+                {this.state.devMode && <GameDevComponent game={this.props.game} renderGame={this.renderGame.bind(this)} />}
             </div>
         );
     }

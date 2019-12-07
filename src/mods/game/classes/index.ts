@@ -1,9 +1,10 @@
-import { GameClassRenderInterface, GameInterface, ElemenInterfaceOrNull } from "../types";
+import { GameInterface } from "../types";
 import { ElementClass } from "../../element/classes";
 import { ElementInterface, ElementTypeEnum, ElementMoveDirection } from "../../element/types";
 import { LevelClassInterface } from "../../level/types";
 import { ElementEnemyClass } from "../../elementEnemy/classes";
 import { UNIT } from "../config/levels";
+import { Pos } from "../../shared/types";
 
 /*
  *
@@ -81,6 +82,7 @@ export class GameClass implements GameInterface {
 
     // 1st action
     public calculateNextPos() {
+        console.groupCollapsed('calculate next pos')
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
@@ -133,53 +135,83 @@ export class GameClass implements GameInterface {
             this.gameOver = true;
         }
         this.tickCounter++;
+        console.groupEnd();
     }
 
+    // 2nd action
     public findCollisions() {
+        console.groupCollapsed('find colliosion')
         const listOfElements = [...this.listOfElements];
         const length = listOfElements.length;
         for (let i = 0; i < length; i++) {
             const firstElement = listOfElements.shift();
             if (firstElement) {
                 const conflicts = listOfElements.filter((element: ElementInterface) => element.getArea().some(v => firstElement.getArea().indexOf(v) !== -1));
+                if (conflicts) {
+                    console.log(length, firstElement, conflicts)
+                    conflicts.push(firstElement);
+                }
+
                 if (conflicts.length === 2) {
 
+                    let kaBoomPos: Pos = { x: -1, y: -1 };
                     const isEnemy = conflicts.find(element => element.getType() === ElementTypeEnum.ENEMY);
                     const isPlayer = conflicts.find(element => element.getType() === ElementTypeEnum.PLAYER);
                     const isShotEnemy = conflicts.find(element => element.getType() === ElementTypeEnum.SHOT_ENEMY);
                     const isPlayerShoot = conflicts.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER);
 
-                    let canRemoveElements = false;
+                    const idToDelete: number[] = [];
+
                     if (isEnemy && isPlayerShoot && isEnemy instanceof ElementEnemyClass) {
                         this.score += isEnemy.getScore();
                         const strength = isEnemy.getStrength();
-                        if (strength === 1) {
-                            canRemoveElements = true;
-                        }
-                        else if (strength > 1) {
+                        if (strength > 1) {
                             isEnemy.setStrength(strength - 1);
                             // remove only shoot
-                            // const isPlayerShootIndex = this.listOfElements.findIndex(element => element.isPosWithSize(x, y) && element.getType() === ElementTypeEnum.SHOT_PLAYER);
-                            // this.listOfElements.splice(isPlayerShootIndex, 1);
+                            const index = this.listOfElements.findIndex(element => element.getId() === isPlayerShoot.getId());
+                            this.listOfElements.splice(index, 1);
                         }
-                    } else {
-                        canRemoveElements = true;
-                        if ((isShotEnemy && isPlayer) || (isPlayer && isEnemy)) {
-                            this.playerLife--;
+                        else {
+                            idToDelete.push(isEnemy.getId());
+                            idToDelete.push(isPlayerShoot.getId());
                         }
                     }
+                    if (isShotEnemy && isPlayer) {
+                        this.playerLife--;
+                        idToDelete.push(isShotEnemy.getId());
+                        idToDelete.push(isPlayer.getId());
+                        kaBoomPos = isPlayer.getPos();
+                    }
+                    if (isPlayer && isEnemy) {
+                        this.playerLife--;
+                        idToDelete.push(isPlayer.getId());
+                        idToDelete.push(isEnemy.getId());
+                        kaBoomPos = isPlayer.getPos();
+                    }
+                    if (isPlayerShoot && isShotEnemy) {
+                        idToDelete.push(isPlayerShoot.getId());
+                        idToDelete.push(isShotEnemy.getId());
+                    }
 
-                    if (canRemoveElements) {
+                    console.log(kaBoomPos)
+                    console.log(idToDelete)
+
+                    if (idToDelete.length) {
                         // Remove both of them
-                        // this.listOfElements = this.listOfElements.filter(element => element.isPosWithSize(x, y) === false);
-                        // this.listOfElements.push(new ElementClass({
-                        //     type: ElementTypeEnum.KA_BOOM,
-                        //     speed: 5,
-                        //     sizeX: 48 / UNIT,
-                        //     sizeY: 48 / UNIT,
-                        //     moveSequence: [],
-                        //     pos: { x, y },
-                        // }));
+                        idToDelete.forEach(id => {
+                            const index = this.listOfElements.findIndex(element => element.getId() === id);
+                            this.listOfElements.splice(index, 1);
+                        });
+                    }
+                    if (kaBoomPos.x > -1) {
+                        this.listOfElements.push(new ElementClass({
+                            type: ElementTypeEnum.KA_BOOM,
+                            speed: 5,
+                            sizeX: 48 / UNIT,
+                            sizeY: 48 / UNIT,
+                            moveSequence: [],
+                            pos: kaBoomPos,
+                        }));
                     }
                 }
                 if (conflicts.length > 2) {
@@ -188,6 +220,7 @@ export class GameClass implements GameInterface {
                 }
             }
         }
+        console.groupEnd();
     }
 
     public enemyShoot() {
@@ -200,13 +233,16 @@ export class GameClass implements GameInterface {
         if (maxY > -1) {
             const bottomEnemies = this.listOfElements.filter(element => element.getType() === ElementTypeEnum.ENEMY && element.getPos().y === maxY);
             const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
+            const enemySizeX = 48 / UNIT;
+            const sizeX = 48 / UNIT;
+            const sizeY = 48 / UNIT;
             this.listOfElements.push(new ElementClass({
                 type: ElementTypeEnum.SHOT_ENEMY,
                 speed: 1,
-                sizeX: 48 / UNIT,
-                sizeY: 48 / UNIT,
+                sizeX,
+                sizeY,
                 moveSequence: [ElementMoveDirection.DOWN],
-                pos: { x: randomEnemy.getPos().x, y: randomEnemy.getPos().y + (48 / UNIT / 2) },
+                pos: { x: randomEnemy.getPos().x + Math.floor(enemySizeX / 2 - sizeX / 2), y: randomEnemy.getPos().y + sizeY },
             }));
         }
     }
@@ -218,13 +254,16 @@ export class GameClass implements GameInterface {
             const y = player.getPos().y - 1;
             const playerShoot = this.listOfElements.find(element => element.getType() === ElementTypeEnum.SHOT_PLAYER && element.isPosWithSize(x, y));
             if (playerShoot === undefined) {
+                const playerSizeX = 48 / UNIT;
+                const sizeX = 48 / UNIT;
+                const sizeY = 48 / UNIT;
                 this.listOfElements.push(new ElementClass({
                     type: ElementTypeEnum.SHOT_PLAYER,
                     speed: 1,
-                    sizeX: 48 / UNIT,
-                    sizeY: 48 / UNIT,
+                    sizeX,
+                    sizeY,
                     moveSequence: [ElementMoveDirection.UP],
-                    pos: { x, y: y - (48 / UNIT / 2) },
+                    pos: { x: x + Math.floor(playerSizeX / 2 - sizeX / 2), y: y - sizeY },
                 }));
             }
         }
@@ -232,6 +271,7 @@ export class GameClass implements GameInterface {
 
     public getStats(): string {
         return `
+        unit: ${UNIT}
         life: ${this.playerLife}
         gameOver: ${this.gameOver}
         gameWin: ${this.gameWin}
@@ -243,23 +283,17 @@ export class GameClass implements GameInterface {
         ${this.listOfElements.map(
             element => {
                 return `
+            id: ${element.getId()}
             type: ${element.getType()}
-            pos: ${JSON.stringify(element.getPos())}`
+            pos: ${JSON.stringify(element.getPos())}
+            nextPos: ${JSON.stringify(element.getNextPos())}
+            size: ${element.getSizeX()} x ${element.getSizeY()}
+            area: ${element.getArea()}`
             }).join("\r\n")}`;
     }
 
     public movePlayer(direction: ElementMoveDirection) {
         this.playerPosOffsset = direction === ElementMoveDirection.LEFT ? this.playerPosOffsset - 1 : this.playerPosOffsset + 1;
-    }
-
-    private findElement(x: number, y: number): ElemenInterfaceOrNull {
-        const found = this.listOfElements.find(element => element.isPos(x, y));
-        return found || null;
-    }
-
-    private findElements(x: number, y: number): ElementInterface[] {
-        const found = this.listOfElements.filter(element => element.isPosWithSize(x, y));
-        return found || [];
     }
 
     private addEnemies(levels: LevelClassInterface[]) {

@@ -13,7 +13,7 @@ export interface ElementInterface {
     getNextPos(): Pos;
     getType(): ElementTypeEnum;
     isPos(x: number, y: number): boolean;
-    isNextPos(x: number, y: number): boolean;
+    // isNextPos(x: number, y: number): boolean;
     setPosX(x: number): void;
     setPosY(y: number): void;
     setNextPosX(x: number): void;
@@ -23,8 +23,10 @@ export interface ElementInterface {
     setNextPosition(): void;
     getSizeX(): number;
     getSizeY(): number;
-    getArea(): number[];
+    getArea(): string[];
     isPosWithSize(x: number, y: number): boolean;
+    setId(id: number): void;
+    getId(): number;
 }
 
 export enum ElementMoveDirection {

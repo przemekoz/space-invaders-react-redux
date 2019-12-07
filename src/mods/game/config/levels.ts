@@ -3,7 +3,7 @@ import { ElementEnemyClass } from "../../elementEnemy/classes";
 import { ElementEnemySubtype } from "../../elementEnemy/types";
 import { ElementMoveDirection } from "../../element/types";
 
-export const UNIT = 2; // 2px is one unit
+export const UNIT = 12; // 2px is one unit
 
 const speeds = [81, 41, 21];
 const moveSequence = [
@@ -42,15 +42,16 @@ const secondLevelEnemy = { speed: 70, moveSequence: moveSequence[1], sizeX, size
 export const GAME_LEVELS = [
 
     new LevelClass({
-        shootInterval: 3000,
+        // TEST !
+        shootInterval: 300000,
         enemies: [
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 2 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 3 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 4 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 5 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 6 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 7 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
-            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 8 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 2 * sizeX, y: 7 * sizeY }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 3 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 4 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 5 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 6 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 7 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
+            // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 8 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
 
             // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 2 * sizeX, y: 1 * sizeY }, subtype: ElementEnemySubtype.BLUE }),
             // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 3 * sizeX, y: 1 * sizeY }, subtype: ElementEnemySubtype.BLUE }),
