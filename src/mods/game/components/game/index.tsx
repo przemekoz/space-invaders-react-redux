@@ -19,7 +19,7 @@ interface State {
 export class GameComponent extends React.Component<Props, State> {
 
     private tickInterval: any = null;
-    private tickIntervalTime = 1000;
+    private tickIntervalTime = 500; // 33ms tick -  about 30fps 
 
     constructor(props: Props) {
         super(props);
@@ -28,6 +28,12 @@ export class GameComponent extends React.Component<Props, State> {
             devMode: window.location.search === '?dev',
             listOfElements: [],
         };
+        document.addEventListener('keydown', event => {
+            console.log(event.keyCode)
+            if (event.keyCode) {
+
+            }
+        });
     }
 
     componentDidMount() {
@@ -83,7 +89,6 @@ export class GameComponent extends React.Component<Props, State> {
         return (
             <div style={{ display: 'flex', flexDirection: 'row' }}>
                 <div style={{ flex: 1 }}>
-                    <input type="text" style={{ width: "20px", background: 'white', border: 'none' }} autoFocus onKeyDown={this.handleKeyPress.bind(this)} />
                     <div tabIndex={0}>
                         <div onKeyDown={this.handleKeyPress.bind(this)} style={{ outline: 'none', float: 'left', width: '500px', height: '500px', position: 'relative' }}>
                             {listOfElements.map((element: ElementInterface, index: number) =>

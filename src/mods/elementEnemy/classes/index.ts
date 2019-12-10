@@ -5,11 +5,10 @@ import { Pos } from "../../shared/types";
 
 interface Params {
     pos: Pos;
+    unit: number;
     speed: number;
     moveSequence: ElementMoveDirection[];
     subtype: ElementEnemySubtype;
-    sizeX: number;
-    sizeY: number;
     strength?: number;
     score?: number;
 }
@@ -23,8 +22,9 @@ export class ElementEnemyClass extends ElementClass implements ElementInterface,
         super({
             pos: params.pos,
             speed: params.speed,
-            sizeX: params.sizeX,
-            sizeY: params.sizeY,
+            // FIXME remove UNIT
+            sizeX: 48 / params.unit,
+            sizeY: 48 / params.unit,
             moveSequence: params.moveSequence,
             type: ElementTypeEnum.ENEMY,
         });

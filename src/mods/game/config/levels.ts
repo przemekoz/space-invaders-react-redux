@@ -36,8 +36,8 @@ const moveSequence = [
 
 const sizeX = 48 / UNIT;
 const sizeY = 48 / UNIT;
-const firstLevelEnemy = { speed: 80, moveSequence: moveSequence[0], sizeX, sizeY };
-const secondLevelEnemy = { speed: 70, moveSequence: moveSequence[1], sizeX, sizeY };
+const firstLevelEnemy = { speed: 80, moveSequence: moveSequence[0], unit: UNIT };
+const secondLevelEnemy = { speed: 70, moveSequence: moveSequence[1], unit: UNIT };
 
 export const GAME_LEVELS = [
 
@@ -45,6 +45,7 @@ export const GAME_LEVELS = [
         // TEST !
         shootInterval: 300000,
         enemies: [
+            new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 4 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
             new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 2 * sizeX, y: 7 * sizeY }, subtype: ElementEnemySubtype.CHIEF }),
             // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 3 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
             // new ElementEnemyClass({ ...firstLevelEnemy, pos: { x: 4 * sizeX, y: 0 }, subtype: ElementEnemySubtype.CHIEF }),
@@ -119,7 +120,7 @@ export const GAME_LEVELS = [
     new LevelClass({
         shootInterval: 1000,
         enemies: [
-            new ElementEnemyClass({ speed: speeds[2], sizeX: 240 / UNIT, sizeY: 240 / UNIT, moveSequence: moveSequence[2], pos: { x: 5, y: 0 }, subtype: ElementEnemySubtype.BOSS, strength: 15, score: 300 }),
+            new ElementEnemyClass({ unit: UNIT, speed: speeds[2], moveSequence: moveSequence[2], pos: { x: 5, y: 0 }, subtype: ElementEnemySubtype.BOSS, strength: 15, score: 300 }),
         ]
     }),
 

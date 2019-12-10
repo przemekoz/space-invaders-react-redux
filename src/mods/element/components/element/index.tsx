@@ -7,6 +7,7 @@ import { EnemyComponent } from "../../../elementEnemy/components";
 import { KaBoomComponent } from "../../../elementKaBoom/components";
 import { ElementEnemyInterface } from "../../../elementEnemy/types";
 import { ElementEnemyClass } from "../../../elementEnemy/classes";
+import { ElementKaBoomClass } from "../../../elementKaBoom/classes";
 
 export interface Props {
     element: ElementInterface | ElementEnemyInterface;
@@ -34,7 +35,11 @@ export const ElementComponent = (props: Props) => {
                 return <PlayerComponent />;
 
             case ElementTypeEnum.KA_BOOM:
-                return <KaBoomComponent />;
+                if (element instanceof ElementKaBoomClass) {
+                    return <KaBoomComponent element={element} />;
+                } else {
+                    return null;
+                }
 
             default:
                 return null;
