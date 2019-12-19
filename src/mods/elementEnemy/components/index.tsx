@@ -1,40 +1,44 @@
 import React from 'react';
-import enemy from '../images/enemyNormal48.png';
-import enemySmall from '../images/enemyNormalSmall48.png';
-import enemyRed from '../images/enemyRed48.png';
-import enemyBoss from '../images/boss240.png';
-import enemyBossRedEyes from '../images/bossRedEyes240.png';
-import enemyRedSmall from '../images/enemyRedSmall48.png';
-import enemyChief from '../images/enemyChiefNormal48.png';
-import enemyChiefSmall from '../images/enemyChiefNormalSmall48.png';
-import enemyChiefWeak from '../images/enemyChiefWeak48.png';
-import enemyChiefWeakSmall from '../images/enemyChiefWeakSmall48.png';
-import { ElementEnemyInterface, ElementEnemySubtype } from '../types';
-import { EnemyAnimationComponent } from './animation';
+import { ElementEnemyBlueClass } from "../../elementEnemyBlue/classes";
+import { EnemyBlueComponent } from "../../elementEnemyBlue/components";
+import { EnemyChiefComponent } from '../../elementEnemyChief/components';
+import { EnemyRedComponent } from '../../elementEnemyRed/components';
+import { EnemyBossComponent } from '../../elementEnemyBoss/components';
+import { ElementEnemyRedClass } from '../../elementEnemyRed/classes';
+import { ElementEnemyChiefClass } from '../../elementEnemyChief/classes';
+import { ElementEnemyBossClass } from '../../elementEnemyBoss/classes';
+import { ElementEnemyInterface } from '../types';
 
-interface Props {
-    element: ElementEnemyInterface
+export interface Props {
+    element: ElementEnemyInterface;
 }
 
 export const EnemyComponent = (props: Props) => {
+    const { element } = props;
 
-    switch (props.element.getSubType()) {
-        case ElementEnemySubtype.BLUE:
-            return <EnemyAnimationComponent images={[enemy, enemySmall]} />;
+    const renderType = () => {
+        switch (true) {
+            case element instanceof ElementEnemyBlueClass:
+                return <EnemyBlueComponent />;
 
-        case ElementEnemySubtype.RED:
-            return <EnemyAnimationComponent images={[enemyRed, enemyRedSmall]} />;
+            case element instanceof ElementEnemyRedClass:
+                return <EnemyRedComponent />;
 
-        case ElementEnemySubtype.BOSS:
-            return <EnemyAnimationComponent size={240} images={[enemyBoss, enemyBossRedEyes]} />;
+            case element instanceof ElementEnemyChiefClass:
+                return <EnemyChiefComponent element={element} />;
 
-        case ElementEnemySubtype.CHIEF:
-            return props.element.getStrength() === 2 ?
-                <EnemyAnimationComponent images={[enemyChief, enemyChiefSmall]} /> :
-                <EnemyAnimationComponent images={[enemyChiefWeak, enemyChiefWeakSmall]} />;
+            case element instanceof ElementEnemyBossClass:
+                return <EnemyBossComponent element={element} />;
 
-        default:
-            return null;
-    }
+            default:
+                return null;
+        }
+    };
 
+    return (
+        <div style={{ width: "10px", height: "10px" }}>
+            {renderType()}
+        </div >
+
+    );
 };

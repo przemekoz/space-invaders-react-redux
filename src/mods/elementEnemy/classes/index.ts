@@ -1,40 +1,29 @@
-import { ElementClass } from "../../element/classes";
-import { ElementEnemyInterface, ElementEnemySubtype } from "../types";
-import { ElementTypeEnum, ElementInterface, ElementMoveDirection } from "../../element/types";
+import { ElementAbstract } from "../../element/classes";
+import { ElementEnemyInterface } from "../types";
 import { Pos } from "../../shared/types";
 
-interface Params {
+export interface Params {
     pos: Pos;
-    unit: number;
     speed: number;
-    moveSequence: ElementMoveDirection[];
-    subtype: ElementEnemySubtype;
-    strength?: number;
-    score?: number;
+    sizeX: number;
+    sizeY: number;
+    strength: number;
+    score: number;
 }
 
-export class ElementEnemyClass extends ElementClass implements ElementInterface, ElementEnemyInterface {
-    private subtype: ElementEnemySubtype;
-    private strength: number;
-    private score: number;
+export class ElementEnemyAbstract extends ElementAbstract implements ElementEnemyInterface {
+    protected strength: number;
+    protected score: number;
 
     constructor(params: Params) {
         super({
             pos: params.pos,
             speed: params.speed,
-            // FIXME remove UNIT
-            sizeX: 48 / params.unit,
-            sizeY: 48 / params.unit,
-            moveSequence: params.moveSequence,
-            type: ElementTypeEnum.ENEMY,
+            sizeX: params.sizeX,
+            sizeY: params.sizeY,
         });
-        this.subtype = params.subtype;
-        this.strength = params.subtype === ElementEnemySubtype.CHIEF ? 2 : params.strength || 1;
-        this.score = params.subtype === ElementEnemySubtype.CHIEF ? 200 : params.score || 100;
-    }
-
-    public getSubType() {
-        return this.subtype;
+        this.strength = params.strength;
+        this.score = params.score;
     }
 
     public getStrength() {

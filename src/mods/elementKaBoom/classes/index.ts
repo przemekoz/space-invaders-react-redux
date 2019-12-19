@@ -1,44 +1,36 @@
-import { ElementClass } from "../../element/classes";
-import { ElementInterface, ElementTypeEnum } from "../../element/types";
 import { Pos } from "../../shared/types";
 import { UNIT } from "../../game/config/levels";
 import { ElementKaBoomInterface } from "../types";
+import { ElementAbstract } from "../../element/classes";
 
 interface Params {
     pos: Pos;
-    tick: number;
 }
 
-export class ElementKaBoomClass extends ElementClass implements ElementInterface, ElementKaBoomInterface {
-    private tick: number;
+export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaBoomInterface {
     private phase: number;
 
     constructor(params: Params) {
         super({
-            type: ElementTypeEnum.KA_BOOM,
             speed: 1,
             sizeX: 48 / UNIT,
             sizeY: 48 / UNIT,
-            moveSequence: [],
             pos: params.pos,
         });
         this.phase = 0;
-        this.tick = params.tick;
         console.log('-----------------------')
-        console.log(this.phase, this.tick)
     }
 
-    public setNextPhase(tick: number) {
-        this.phase = tick - this.tick;
+    public setNextPhase(tick: number): boolean {
         if (this.phase > 4) {
-            this.phase = -1;
+            console.log('remove me')
+            return false;
         }
-        console.log('++++++++++++++++++++++')
-        console.log(this.phase);
-    }
-
-    public shouldRemove(): boolean {
-        return this.phase === -1;
+        if (tick % this.getSpeed() === 0) {
+            this.phase++;
+            console.log('+', this.phase)
+        }
+        return true;
     }
 
     public getPhase(): number {
