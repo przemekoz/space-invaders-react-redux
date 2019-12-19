@@ -1,22 +1,21 @@
-import { ElementAbstract } from "../../element/classes";
 import { Pos } from "../../shared/types";
+import { ElementAbstract } from "../../element/classes";
+import { ElementPlayerInterface } from "../types";
 
 export interface Params {
-  pos: Pos;
-  speed: number;
-  sizeX: number;
-  sizeY: number;
+    pos: Pos;
 }
 
-export class ElementPlayerAbstract extends ElementAbstract {
+export class ElementPlayerAbstract extends ElementAbstract implements ElementPlayerInterface {
 
-  constructor( params: Params ) {
-    super( {
-      sizeX: params.sizeX,
-      sizeY: params.sizeX,
-      pos: params.pos,
-      speed: params.speed,
-    } );
-  }
+    constructor(params: Params) {
+        const UNIT = 2;
+        super({
+            sizeX: 48 / UNIT,
+            sizeY: 48 / UNIT,
+            pos: params.pos,
+            speed: 1,
+        });
+    }
 
 }

@@ -8,7 +8,7 @@ interface Params {
 }
 
 export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaBoomInterface {
-    private phase: number;
+    protected phase: number;
 
     constructor(params: Params) {
         super({

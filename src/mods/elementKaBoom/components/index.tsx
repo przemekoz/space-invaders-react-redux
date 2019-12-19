@@ -21,7 +21,7 @@ export const KaBoomComponent = (props: Props) => {
     };
 
     return (
-        <div style={{ width: "10px", height: "10px" }}>
+        <div>
             {renderType()}
         </div >
 
