@@ -7,6 +7,7 @@ export interface ElementInterface {
     setPosY(y: number): void;
     getSizeX(): number;
     getSizeY(): number;
+    getSpeed(): number;
     setId(id: number): void;
     getId(): number;
 }

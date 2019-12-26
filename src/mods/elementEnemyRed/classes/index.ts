@@ -8,7 +8,7 @@ interface Params {
 
 export class ElementEnemyRedClass extends ElementEnemyAbstract {
     constructor(params: Params) {
-        const UNIT = 2;
+        const UNIT = 12;
         super({
             pos: params.pos,
             speed: params.speed,

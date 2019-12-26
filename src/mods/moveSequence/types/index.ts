@@ -2,5 +2,5 @@ import { CommonElementAndMoveSequence, ElementSetNextPhase } from "../../shared/
 import { ElementInterface } from "../../element/types";
 
 export interface MoveSequenceInterafce extends CommonElementAndMoveSequence, ElementSetNextPhase {
-  getElement(): ElementInterface;
+    getElement(): ElementInterface;
 }

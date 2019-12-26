@@ -8,14 +8,14 @@ interface Params {
 
 export class ElementEnemyBossClass extends ElementEnemyAbstract {
     constructor(params: Params) {
-        const UNIT = 2;
+        const UNIT = 12;
         super({
             pos: params.pos,
             speed: params.speed,
-            sizeX: 48 / UNIT,
-            sizeY: 48 / UNIT,
-            strength: 1,
-            score: 100,
+            sizeX: 240 / UNIT,
+            sizeY: 240 / UNIT,
+            strength: 10,
+            score: 1000,
         });
     }
 }

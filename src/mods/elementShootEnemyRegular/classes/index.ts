@@ -7,7 +7,7 @@ interface Params {
 
 export class ElementShootEnemyRegularClass extends ElementShootEnemyAbstract {
   constructor( params: Params ) {
-    const UNIT = 2;
+    const UNIT = 12;
     const sizeX = 48 / UNIT;
     const sizeY = 48 / UNIT;
     super( {

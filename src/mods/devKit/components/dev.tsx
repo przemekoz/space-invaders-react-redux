@@ -1,6 +1,6 @@
 import React from "react";
-import { GameInterface } from "../../types";
-import { ElementMoveDirection } from "../../../element/types";
+import { GameInterface } from "../../game/types";
+import { ElementMoveDirection } from "../../element/types";
 
 interface Props {
     game: GameInterface;

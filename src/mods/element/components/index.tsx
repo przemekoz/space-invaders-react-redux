@@ -1,10 +1,7 @@
 import React from "react";
 import { ElementEnemyAbstract } from "../../elementEnemy/classes";
-import { ElementShootPlayerAbstract } from "../../elementShootPlayer/classes";
-import { ElementShootEnemyAbstract } from "../../elementShootEnemy/classes";
 import { ElementPlayerAbstract } from "../../elementPlayer/classes";
 import { EnemyComponent } from "../../elementEnemy/components";
-import { ShootPlayerComponent } from "../../elementShootPlayerRegular/components";
 import { ElementEnemyInterface } from "../../elementEnemy/types";
 import { ElementKaBoomInterface } from "../../elementKaBoom/types";
 import { ElementKaBoomAbstract } from "../../elementKaBoom/classes";
@@ -20,11 +17,13 @@ export interface Props {
 
 export const ElementComponent = (props: Props) => {
 
+    const { element } = props;
+
     const renderType = () => {
         switch (true) {
             case element instanceof ElementEnemyAbstract: {
-                const element = props.element as ElementEnemyInterface;
-                return <EnemyComponent element={element} />;
+                const elem = element as ElementEnemyInterface;
+                return <EnemyComponent element={elem} />;
             }
 
             // case element instanceof ElementShootPlayerAbstract: {
@@ -36,13 +35,13 @@ export const ElementComponent = (props: Props) => {
             //     return <EnemyShootComponent element={element} />;
 
             case element instanceof ElementPlayerAbstract: {
-                const element = props.element as ElementPlayerInterface;
-                return <PlayerComponent element={element} />;
+                const elem = element as ElementPlayerInterface;
+                return <PlayerComponent element={elem} />;
             }
 
             case element instanceof ElementKaBoomAbstract: {
-                const element = props.element as ElementKaBoomInterface;
-                return <KaBoomComponent element={element} />;
+                const elem = element as ElementKaBoomInterface;
+                return <KaBoomComponent element={elem} />;
             }
 
             default:

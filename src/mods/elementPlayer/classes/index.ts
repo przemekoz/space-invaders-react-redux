@@ -9,7 +9,7 @@ export interface Params {
 export class ElementPlayerAbstract extends ElementAbstract implements ElementPlayerInterface {
 
     constructor(params: Params) {
-        const UNIT = 2;
+        const UNIT = 12;
         super({
             sizeX: 48 / UNIT,
             sizeY: 48 / UNIT,

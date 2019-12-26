@@ -29,6 +29,7 @@ export class AnimationComponent extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        // FIXME - change interval to speed mechanism
         this.interval = setInterval(() => {
             this.setState({ image: this.props.images[this.index] });
             this.index++;

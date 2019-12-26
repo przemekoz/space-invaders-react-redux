@@ -3,6 +3,17 @@ import { ElementInterface, ElementMoveDirection } from "../../element/types";
 import { LevelClassInterface } from "../../level/types";
 import { UNIT } from "../config/levels";
 import { Pos } from "../../shared/types";
+import { ElementKaBoomAbstract } from "../../elementKaBoom/classes";
+import { ElementKaBoomInterface } from "../../elementKaBoom/types";
+import { ElementPlayerAbstract } from "../../elementPlayer/classes";
+import { ElementEnemyAbstract } from "../../elementEnemy/classes";
+import { getArea } from "../../shared/helpers";
+import { ElementShootEnemyAbstract } from "../../elementShootEnemy/classes";
+import { ElementShootPlayerAbstract } from "../../elementShootPlayer/classes";
+import { ElementKaBoomEnemyClass } from "../../elementKaBoomEnemy/classes";
+import { ElementShootEnemyRegularClass } from "../../elementShootEnemyRegular/classes";
+import { ElementPlayerShootClass } from "../../elementShootPlayerRegular/classes";
+import { ElementPlayerRegularClass } from "../../elementPlayerRegular/classes";
 
 /*
  *
@@ -18,16 +29,16 @@ interface Params {
 export class GameClass implements GameInterface {
     private maxX = 11 * 48 / UNIT;
     private maxY = 10 * 48 / UNIT;
-    private level: number;
-    private score: number;
-    private playerLife: number;
-    private tickCounter: number;
-    private playerPosOffsset: number;
+    private level = 0;
+    private score = 0;
+    private playerLife = 3;
+    private tickCounter = 0;
+    private playerPosOffsset = 0;
     private levels: LevelClassInterface[] = [];
-    private listOfElements: ElementInterface[];
+    private listOfElements: ElementInterface[] = [];
     private enemyShootInterval: any = null;
-    private gameOver: boolean;
-    private gameWin: boolean;
+    private gameOver = false;
+    private gameWin = false;
 
     constructor(params: Params) {
         this.levels = params.levels;
@@ -78,7 +89,6 @@ export class GameClass implements GameInterface {
 
     // 1st action
     public calculateNextPos() {
-        console.groupCollapsed('calculate next pos')
         const elementsToRemove: number[] = [];
         this.listOfElements.forEach((element, index) => {
 
@@ -90,35 +100,39 @@ export class GameClass implements GameInterface {
                 elementsToRemove.push(index);
             }
 
-            element.setNextPosition();
-
             // if (this.tickCounter % element.getSpeed() === 0) {
             switch (true) {
-
-                case element instanceof ElementKaBoomAbstract:
-                    element.setNextPhase(this.tickCounter);
-                    if (element.shouldRemove()) {
+                case element instanceof ElementKaBoomAbstract: {
+                    const elem = element as ElementKaBoomInterface;
+                    elem.setNextPhase(this.tickCounter);
+                    if (elem.getPhase() === -1) {
                         elementsToRemove.push(index);
                     }
                     break;
+                }
 
-                case element instanceof ElementPlayerAbstract:
+                // case element instanceof MoveSequence: {
+                //     const elem = element as MoveSequenceInterafce;
+                //     elem.setNextPhase(this.tickCounter);
+                //     break;
+                // }
+
+                case element instanceof ElementPlayerAbstract: {
                     const potentialX = element.getPos().x + this.playerPosOffsset;
                     element.setPosX(potentialX < 0 ? 0 : potentialX > this.maxX - 1 ? this.maxX - 1 : potentialX);
                     break;
+                }
 
                 default:
-                    element.setPosition();
+                    // no action
                     break;
             }
-            // }
         });
 
         elementsToRemove.forEach(index => {
             this.listOfElements.splice(index, 1);
         });
 
-        this.playerPosOffsset = 0;
         const isPlayer = this.listOfElements.find(element => element instanceof ElementPlayerAbstract);
         if (isPlayer === undefined && this.playerLife > 0) {
             this.addPlayer();
@@ -136,21 +150,20 @@ export class GameClass implements GameInterface {
         if (this.playerLife === 0) {
             this.gameOver = true;
         }
+
         this.tickCounter++;
-        console.groupEnd();
+        this.playerPosOffsset = 0;
     }
 
     // 2nd action
     public findCollisions() {
-        console.groupCollapsed('find colliosion')
         const listOfElements = [...this.listOfElements];
         const length = listOfElements.length;
         for (let i = 0; i < length; i++) {
             const firstElement = listOfElements.shift();
             if (firstElement) {
-                const conflicts = listOfElements.filter((element: ElementInterface) => element.getArea().some(v => firstElement.getArea().indexOf(v) !== -1));
+                const conflicts = listOfElements.filter((element: ElementInterface) => getArea(element).some(v => getArea(firstElement).indexOf(v) !== -1));
                 if (conflicts) {
-                    console.log(length, firstElement, conflicts)
                     conflicts.push(firstElement);
                 }
 
@@ -196,9 +209,6 @@ export class GameClass implements GameInterface {
                         idToDelete.push(foundShotEnemy.getId());
                     }
 
-                    console.log(kaBoomPos)
-                    console.log(idToDelete)
-
                     if (idToDelete.length) {
                         // Remove both of them
                         idToDelete.forEach(id => {
@@ -207,7 +217,7 @@ export class GameClass implements GameInterface {
                         });
                     }
                     if (kaBoomPos.x > -1) {
-                        this.listOfElements.push(new ElementKaBoomEnemyClass({ pos: kaBoomPos, tick: this.tickCounter - 1 }));
+                        this.listOfElements.push(new ElementKaBoomEnemyClass({ pos: kaBoomPos }));
                     }
                 }
                 if (conflicts.length > 2) {
@@ -216,7 +226,6 @@ export class GameClass implements GameInterface {
                 }
             }
         }
-        console.groupEnd();
     }
 
     public enemyShoot() {
@@ -241,16 +250,16 @@ export class GameClass implements GameInterface {
         if (player) {
             const x = player.getPos().x;
             const y = player.getPos().y - 1;
-            const playerShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && element.isPosWithSize(x, y));
+            const playerShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element).indexOf(`${x}x${y}`) > -1);
             if (playerShoot === undefined) {
                 const playerSizeX = 48 / UNIT;
-                const shoot = new ElementShootPlayerRegularClass({
+                const shoot = new ElementPlayerShootClass({
                     pos: { x: x + Math.floor(playerSizeX / 2), y },
                 })
-                const anotherShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && element.isInArea(shoot.getArea()));
-                if (anotherShoot === undefined) {
-                    this.listOfElements.push(shoot);
-                }
+                // const anotherShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element) element.isInArea(shoot.getArea()));
+                // if (anotherShoot === undefined) {
+                this.listOfElements.push(shoot);
+                // }
             }
         }
     }
@@ -270,6 +279,7 @@ export class GameClass implements GameInterface {
             element => {
                 return `
             id: ${element.getId()}
+            type: ${element instanceof ElementEnemyAbstract ? "ENEMY" : element instanceof ElementPlayerAbstract ? "PLAYER" : ""}
             pos: ${JSON.stringify(element.getPos())}
             size: ${element.getSizeX()} x ${element.getSizeY()}
             area: ${getArea(element)}`
@@ -300,6 +310,7 @@ export class GameClass implements GameInterface {
         this.stopEnemyShooting();
         if (this.isGameEnd() === false) {
             this.addEnemies(this.levels);
+            // FIXME - change interval to speed mechanism
             this.enemyShootInterval = setInterval(() => {
                 this.enemyShoot();
             }, this.levels[this.level].getShootInterval());
