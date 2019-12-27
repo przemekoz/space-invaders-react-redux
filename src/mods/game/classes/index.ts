@@ -14,6 +14,7 @@ import { ElementKaBoomEnemyClass } from "../../elementKaBoomEnemy/classes";
 import { ElementShootEnemyRegularClass } from "../../elementShootEnemyRegular/classes";
 import { ElementPlayerRegularClass } from "../../elementPlayerRegular/classes";
 import { ElementShootPlayerRegularClass } from "../../elementShootPlayerRegular/classes";
+import { ElementKaBoomPlayerClass } from "../../elementKaBoomPlayer/classes";
 
 /*
  *
@@ -225,7 +226,10 @@ export class GameClass implements GameInterface {
                         });
                     }
                     if (kaBoomPos.x > -1) {
-                        this.listOfElements.push(new ElementKaBoomEnemyClass({ pos: kaBoomPos }));
+                        const kaBoom = (foundShotEnemy && foundPlayer) || (foundPlayer && foundEnemy) ?
+                            new ElementKaBoomPlayerClass({ pos: kaBoomPos }) :
+                            new ElementKaBoomEnemyClass({ pos: kaBoomPos });
+                        this.listOfElements.push(kaBoom);
                     }
                 }
                 if (conflicts.length > 2) {
