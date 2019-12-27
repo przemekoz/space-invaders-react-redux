@@ -8,8 +8,13 @@ import { ElementKaBoomAbstract } from "../../elementKaBoom/classes";
 import { KaBoomComponent } from "../../elementKaBoom/components";
 import { PlayerComponent } from "../../elementPlayer/components";
 import { ElementPlayerInterface } from "../../elementPlayer/types";
+import { ElementShootPlayerAbstract } from "../../elementShootPlayer/classes";
+import { ShootPlayerRegularComponent } from "../../elementShootPlayerRegular/components";
+import { ElementShootEnemyAbstract } from "../../elementShootEnemy/classes";
+import { ElementShootEnemyInterface } from "../../elementShootEnemy/types";
+import { ShootEnemyComponent } from "../../elementShootEnemy/components";
 
-export type ElementType = ElementEnemyInterface | ElementKaBoomInterface | ElementPlayerInterface;
+export type ElementType = ElementEnemyInterface | ElementKaBoomInterface | ElementPlayerInterface | ElementShootEnemyInterface;
 
 export interface Props {
     element: ElementType;
@@ -26,13 +31,14 @@ export const ElementComponent = (props: Props) => {
                 return <EnemyComponent element={elem} />;
             }
 
-            // case element instanceof ElementShootPlayerAbstract: {
-            //     const element = props.element as ElementShootPlayerAbstract;
-            //     return <ShootPlayerComponent element={element} />;
-            // }
+            case element instanceof ElementShootPlayerAbstract: {
+                return <ShootPlayerRegularComponent />;
+            }
 
-            // case element instanceof ElementShootEnemyAbstract:
-            //     return <EnemyShootComponent element={element} />;
+            case element instanceof ElementShootEnemyAbstract: {
+                const elem = element as ElementShootEnemyInterface;
+                return <ShootEnemyComponent element={elem} />;
+            }
 
             case element instanceof ElementPlayerAbstract: {
                 const elem = element as ElementPlayerInterface;

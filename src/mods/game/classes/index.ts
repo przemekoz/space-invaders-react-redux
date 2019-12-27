@@ -12,8 +12,8 @@ import { ElementShootEnemyAbstract } from "../../elementShootEnemy/classes";
 import { ElementShootPlayerAbstract } from "../../elementShootPlayer/classes";
 import { ElementKaBoomEnemyClass } from "../../elementKaBoomEnemy/classes";
 import { ElementShootEnemyRegularClass } from "../../elementShootEnemyRegular/classes";
-import { ElementPlayerShootClass } from "../../elementShootPlayerRegular/classes";
 import { ElementPlayerRegularClass } from "../../elementPlayerRegular/classes";
+import { ElementShootPlayerRegularClass } from "../../elementShootPlayerRegular/classes";
 
 /*
  *
@@ -108,6 +108,16 @@ export class GameClass implements GameInterface {
                     if (elem.getPhase() === -1) {
                         elementsToRemove.push(index);
                     }
+                    break;
+                }
+
+                case element instanceof ElementShootPlayerAbstract: {
+                    element.setPosY(element.getPos().y - 1);
+                    break;
+                }
+
+                case element instanceof ElementShootEnemyAbstract: {
+                    element.setPosY(element.getPos().y + 1);
                     break;
                 }
 
@@ -253,7 +263,7 @@ export class GameClass implements GameInterface {
             const playerShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element).indexOf(`${x}x${y}`) > -1);
             if (playerShoot === undefined) {
                 const playerSizeX = 48 / UNIT;
-                const shoot = new ElementPlayerShootClass({
+                const shoot = new ElementShootPlayerRegularClass({
                     pos: { x: x + Math.floor(playerSizeX / 2), y },
                 })
                 // const anotherShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element) element.isInArea(shoot.getArea()));
@@ -279,7 +289,10 @@ export class GameClass implements GameInterface {
             element => {
                 return `
             id: ${element.getId()}
-            type: ${element instanceof ElementEnemyAbstract ? "ENEMY" : element instanceof ElementPlayerAbstract ? "PLAYER" : ""}
+            type: ${element instanceof ElementEnemyAbstract ? "ENEMY" :
+                        element instanceof ElementPlayerAbstract ? "PLAYER" :
+                            element instanceof ElementShootPlayerAbstract ? "SHOOT PLAYER" :
+                                element instanceof ElementKaBoomAbstract ? "KaBoom" : ""}
             pos: ${JSON.stringify(element.getPos())}
             size: ${element.getSizeX()} x ${element.getSizeY()}
             area: ${getArea(element)}`

@@ -5,7 +5,6 @@ import { MoveSequenceInterafce } from "../types";
 interface Params {
     element: ElementInterface;
     moveSequence: ElementMoveDirection[];
-    tick: number;
 }
 
 export class MoveSequence implements MoveSequenceInterafce {
@@ -47,7 +46,7 @@ export class MoveSequence implements MoveSequenceInterafce {
         return true;
     }
 
-    public getPos(): Pos {
+    getPos(): Pos {
         const { x, y } = this.element.getPos();
         switch (this.moveSequence[this.moveOffset]) {
             case ElementMoveDirection.LEFT:
