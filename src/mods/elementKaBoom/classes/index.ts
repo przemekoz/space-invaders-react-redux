@@ -1,5 +1,4 @@
 import { Pos } from "../../shared/types";
-import { UNIT } from "../../game/config/levels";
 import { ElementKaBoomInterface } from "../types";
 import { ElementAbstract } from "../../element/classes";
 
@@ -11,6 +10,7 @@ export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaB
     protected phase: number;
 
     constructor(params: Params) {
+        const UNIT = 12;
         super({
             speed: 1,
             sizeX: 48 / UNIT,

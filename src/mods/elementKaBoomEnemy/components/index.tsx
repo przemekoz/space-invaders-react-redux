@@ -20,6 +20,6 @@ images.set(4, image4);
 export const KaBoomEnemyComponent = (props: Props) => {
     const { element } = props;
     return (
-        <img src={images.get(element.getPhase())} width="48" height="48" alt="this is the enemy ka-boom" />
+        <img src={images.get(element.getPhase())} width="48" height="48" alt="this is the enemy ka-boom" style={{ border: "1px solid red" }} />
     );
 } 

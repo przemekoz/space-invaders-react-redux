@@ -74,7 +74,7 @@ export class GameDevComponent extends React.Component<Props, State> {
                         <br />
 
                         actions<br />
-                        <button onClick={this.tick.bind(this)}>tick ! (1,2,3)</button><br />
+                        <button onClick={this.tick.bind(this)}>tick !</button><br />
                         <button onClick={this.calculateNextPos.bind(this)}>1. calculate next pos</button><br />
                         <button onClick={this.findCollisions.bind(this)}>2. check collisions</button><br />
                         <br />

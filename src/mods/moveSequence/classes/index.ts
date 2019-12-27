@@ -40,9 +40,7 @@ export class MoveSequence implements MoveSequenceInterafce {
             element.setPosX(this.getPos().x);
             element.setPosY(this.getPos().y);
             this.moveOffset++;
-            console.log('+');
         }
-
         return true;
     }
 

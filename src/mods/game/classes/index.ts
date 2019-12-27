@@ -247,8 +247,9 @@ export class GameClass implements GameInterface {
             const bottomEnemies = this.listOfElements.filter(element => element instanceof ElementEnemyAbstract && element.getPos().y === maxY);
             const randomEnemy = bottomEnemies[Math.floor(Math.random() * bottomEnemies.length)];
             const enemySizeX = 48 / UNIT;
+            const enemySizeY = 48 / UNIT;
             this.listOfElements.push(new ElementShootEnemyRegularClass({
-                pos: { x: randomEnemy.getPos().x + Math.floor(enemySizeX / 2), y: randomEnemy.getPos().y },
+                pos: { x: randomEnemy.getPos().x + Math.floor(enemySizeX / 2), y: randomEnemy.getPos().y + enemySizeY },
             }));
         }
     }

@@ -45,7 +45,7 @@ export class AnimationComponent extends React.Component<Props, State> {
 
     render() {
         return (
-            <img src={this.state.image} width={this.size} height={this.size} alt="" />
+            <img src={this.state.image} width={this.size} height={this.size} alt="" style={{ border: "1px solid red" }} />
         );
     }
 }
