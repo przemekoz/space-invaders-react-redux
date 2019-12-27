@@ -18,12 +18,10 @@ export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaB
             pos: params.pos,
         });
         this.phase = 0;
-        console.log('-----------------------')
     }
 
     public setNextPhase(tick: number): boolean {
         if (this.phase > 3) {
-            console.log('remove me')
             return false;
         }
         if (tick % this.getSpeed() === 0) {
@@ -33,7 +31,6 @@ export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaB
     }
 
     public getPhase(): number {
-        console.log('+', this.phase)
         return this.phase;
     }
 }

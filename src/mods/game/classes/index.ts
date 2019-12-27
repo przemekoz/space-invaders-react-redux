@@ -256,18 +256,15 @@ export class GameClass implements GameInterface {
     public playerShoot() {
         const player = this.listOfElements.find(element => element instanceof ElementPlayerAbstract);
         if (player) {
-            const x = player.getPos().x;
+            const playerSizeX = 48 / UNIT;
+            const x = player.getPos().x + Math.floor(playerSizeX / 2);
             const y = player.getPos().y - 1;
-            const playerShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element).indexOf(`${x}x${y}`) > -1);
+            const shoot = new ElementShootPlayerRegularClass({
+                pos: { x, y },
+            });
+            const playerShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element).indexOf(`${shoot.getPos().x}x${shoot.getPos().y}`) > -1)
             if (playerShoot === undefined) {
-                const playerSizeX = 48 / UNIT;
-                const shoot = new ElementShootPlayerRegularClass({
-                    pos: { x: x + Math.floor(playerSizeX / 2), y },
-                })
-                // const anotherShoot = this.listOfElements.find(element => element instanceof ElementShootPlayerAbstract && getArea(element) element.isInArea(shoot.getArea()));
-                // if (anotherShoot === undefined) {
                 this.listOfElements.push(shoot);
-                // }
             }
         }
     }
