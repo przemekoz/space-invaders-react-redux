@@ -3,23 +3,23 @@ import { ElementEnemyInterface } from "../../elementEnemy/types";
 
 interface Params {
     enemies: ElementEnemyInterface[];
-    shootInterval: number;
+    shootSpeed: number;
 }
 
 export class LevelClass implements LevelClassInterface {
     private enemies: ElementEnemyInterface[];
-    private shootInterval: number;
+    private shootSpeed: number;
 
     constructor(params: Params) {
         this.enemies = params.enemies;
-        this.shootInterval = params.shootInterval;
+        this.shootSpeed = params.shootSpeed;
     }
 
     public getEnemies() {
         return this.enemies;
     }
 
-    public getShootInterval() {
-        return this.shootInterval;
+    public getShootSpeed() {
+        return this.shootSpeed;
     }
 }

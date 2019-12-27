@@ -9,12 +9,13 @@ import { KaBoomComponent } from "../../elementKaBoom/components";
 import { PlayerComponent } from "../../elementPlayer/components";
 import { ElementPlayerInterface } from "../../elementPlayer/types";
 import { ElementShootPlayerAbstract } from "../../elementShootPlayer/classes";
-import { ShootPlayerRegularComponent } from "../../elementShootPlayerRegular/components";
 import { ElementShootEnemyAbstract } from "../../elementShootEnemy/classes";
 import { ElementShootEnemyInterface } from "../../elementShootEnemy/types";
 import { ShootEnemyComponent } from "../../elementShootEnemy/components";
+import { ElementShootPlayerInterface } from "../../elementShootPlayer/types";
+import { ShootPlayerComponent } from "../../elementShootPlayer/components";
 
-export type ElementType = ElementEnemyInterface | ElementKaBoomInterface | ElementPlayerInterface | ElementShootEnemyInterface;
+export type ElementType = ElementEnemyInterface | ElementKaBoomInterface | ElementPlayerInterface | ElementShootEnemyInterface | ElementShootPlayerInterface;
 
 export interface Props {
     element: ElementType;
@@ -32,7 +33,8 @@ export const ElementComponent = (props: Props) => {
             }
 
             case element instanceof ElementShootPlayerAbstract: {
-                return <ShootPlayerRegularComponent />;
+                const elem = element as ElementShootPlayerInterface;
+                return <ShootPlayerComponent element={elem} />;
             }
 
             case element instanceof ElementShootEnemyAbstract: {

@@ -43,7 +43,7 @@ export const GAME_LEVELS = [
 
     new LevelClass({
         // TEST !
-        shootInterval: 25000,
+        shootSpeed: 35,
         enemies: [
             new ElementEnemyBlueClass({ ...firstLevelEnemy, pos: { x: 4 * sizeX, y: 0 } }),
             new ElementEnemyRedClass({ ...firstLevelEnemy, pos: { x: 2 * sizeX, y: 7 * sizeY } }),
@@ -51,7 +51,7 @@ export const GAME_LEVELS = [
     }),
 
     new LevelClass({
-        shootInterval: 15000,
+        shootSpeed: 25,
         enemies: [
             new ElementEnemyChiefClass({ ...secondLevelEnemy, pos: { x: 2, y: 0 } }),
         ]

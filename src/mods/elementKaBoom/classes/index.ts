@@ -22,18 +22,18 @@ export class ElementKaBoomAbstract extends ElementAbstract implements ElementKaB
     }
 
     public setNextPhase(tick: number): boolean {
-        if (this.phase > 4) {
+        if (this.phase > 3) {
             console.log('remove me')
             return false;
         }
         if (tick % this.getSpeed() === 0) {
             this.phase++;
-            console.log('+', this.phase)
         }
         return true;
     }
 
     public getPhase(): number {
+        console.log('+', this.phase)
         return this.phase;
     }
 }

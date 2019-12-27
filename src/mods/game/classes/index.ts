@@ -34,9 +34,9 @@ export class GameClass implements GameInterface {
     private playerLife = 3;
     private tickCounter = 0;
     private playerPosOffsset = 0;
+    private enemyShootSpeed = 0;
     private levels: LevelClassInterface[] = [];
     private listOfElements: ElementInterface[] = [];
-    private enemyShootInterval: any = null;
     private gameOver = false;
     private gameWin = false;
 
@@ -50,7 +50,6 @@ export class GameClass implements GameInterface {
     }
 
     public reset() {
-        this.stopEnemyShooting();
         this.level = 0;
         this.score = 0;
         this.playerLife = 3;
@@ -83,10 +82,6 @@ export class GameClass implements GameInterface {
         return this.playerLife;
     }
 
-    public stopEnemyShooting() {
-        clearInterval(this.enemyShootInterval);
-    }
-
     // 1st action
     public calculateNextPos() {
         const elementsToRemove: number[] = [];
@@ -100,12 +95,11 @@ export class GameClass implements GameInterface {
                 elementsToRemove.push(index);
             }
 
-            // if (this.tickCounter % element.getSpeed() === 0) {
             switch (true) {
                 case element instanceof ElementKaBoomAbstract: {
                     const elem = element as ElementKaBoomInterface;
-                    elem.setNextPhase(this.tickCounter);
-                    if (elem.getPhase() === -1) {
+                    const changed = elem.setNextPhase(this.tickCounter);
+                    if (changed === false) {
                         elementsToRemove.push(index);
                     }
                     break;
@@ -137,7 +131,7 @@ export class GameClass implements GameInterface {
                     // no action
                     break;
             }
-        });
+        }); // foreach
 
         elementsToRemove.forEach(index => {
             this.listOfElements.splice(index, 1);
@@ -159,6 +153,10 @@ export class GameClass implements GameInterface {
         }
         if (this.playerLife === 0) {
             this.gameOver = true;
+        }
+
+        if (this.tickCounter % this.enemyShootSpeed === 0) {
+            this.enemyShoot();
         }
 
         this.tickCounter++;
@@ -320,13 +318,9 @@ export class GameClass implements GameInterface {
     }
 
     private addLevel() {
-        this.stopEnemyShooting();
         if (this.isGameEnd() === false) {
             this.addEnemies(this.levels);
-            // FIXME - change interval to speed mechanism
-            this.enemyShootInterval = setInterval(() => {
-                this.enemyShoot();
-            }, this.levels[this.level].getShootInterval());
+            this.enemyShootSpeed = this.levels[this.level].getShootSpeed();
         }
     }
 }
